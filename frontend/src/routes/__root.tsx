@@ -19,7 +19,11 @@ export const Route = createRootRouteWithContext<MyRouterContext>()({
         <AppSidebar variant="inset" />
         <SidebarInset>
           <SiteHeader />
-          <Outlet />
+          <div className="flex flex-1 flex-col">
+            <div className="@container/main flex flex-1 flex-col gap-2">
+              <Outlet />
+            </div>
+          </div>
         </SidebarInset>
       </SidebarProvider>
 
