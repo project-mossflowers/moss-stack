@@ -14,7 +14,7 @@ function TanStackQueryDemo() {
   })
 
   return (
-    <div className="p-4">
+    <div className="p-6">
       <h1 className="text-2xl mb-4">People list</h1>
       <ul>
         {data.map((person) => (
