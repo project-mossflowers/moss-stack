@@ -1,7 +1,6 @@
-import { MailIcon, PlusCircleIcon, type LucideIcon } from 'lucide-react'
+import { type LucideIcon } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 
-import { Button } from '@/components/ui/button'
 import {
   SidebarGroup,
   SidebarGroupContent,

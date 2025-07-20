@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as ItemsRouteImport } from './routes/items'
+import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardIndexRouteImport } from './routes/dashboard/index'
 import { Route as DemoTanstackQueryRouteImport } from './routes/demo.tanstack-query'
@@ -23,6 +24,11 @@ const SettingsRoute = SettingsRouteImport.update({
 const ItemsRoute = ItemsRouteImport.update({
   id: '/items',
   path: '/items',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdminRoute = AdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -43,6 +49,7 @@ const DemoTanstackQueryRoute = DemoTanstackQueryRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/items': typeof ItemsRoute
   '/settings': typeof SettingsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -50,6 +57,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/items': typeof ItemsRoute
   '/settings': typeof SettingsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -58,6 +66,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin': typeof AdminRoute
   '/items': typeof ItemsRoute
   '/settings': typeof SettingsRoute
   '/demo/tanstack-query': typeof DemoTanstackQueryRoute
@@ -67,15 +76,23 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/admin'
     | '/items'
     | '/settings'
     | '/demo/tanstack-query'
     | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/items' | '/settings' | '/demo/tanstack-query' | '/dashboard'
+  to:
+    | '/'
+    | '/admin'
+    | '/items'
+    | '/settings'
+    | '/demo/tanstack-query'
+    | '/dashboard'
   id:
     | '__root__'
     | '/'
+    | '/admin'
     | '/items'
     | '/settings'
     | '/demo/tanstack-query'
@@ -84,6 +101,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminRoute: typeof AdminRoute
   ItemsRoute: typeof ItemsRoute
   SettingsRoute: typeof SettingsRoute
   DemoTanstackQueryRoute: typeof DemoTanstackQueryRoute
@@ -104,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/items'
       fullPath: '/items'
       preLoaderRoute: typeof ItemsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin': {
+      id: '/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AdminRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -132,6 +157,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminRoute: AdminRoute,
   ItemsRoute: ItemsRoute,
   SettingsRoute: SettingsRoute,
   DemoTanstackQueryRoute: DemoTanstackQueryRoute,

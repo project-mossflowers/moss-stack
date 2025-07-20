@@ -11,6 +11,7 @@ import {
   HomeIcon,
   LayoutDashboardIcon,
   ListIcon,
+  LockIcon,
   SearchIcon,
   SettingsIcon,
 } from "lucide-react"
@@ -106,11 +107,11 @@ const data = {
       url: "/settings",
       icon: SettingsIcon,
     },
-    // {
-    //   title: "Get Help",
-    //   url: "#",
-    //   icon: HelpCircleIcon,
-    // },
+    {
+      title: "Admin",
+      url: "/admin",
+      icon: LockIcon,
+    },
     // {
     //   title: "Search",
     //   url: "#",
