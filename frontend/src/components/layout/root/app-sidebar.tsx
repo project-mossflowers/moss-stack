@@ -7,16 +7,13 @@ import {
   FileCodeIcon,
   FileIcon,
   FileTextIcon,
-  HelpCircleIcon,
   HomeIcon,
   LayoutDashboardIcon,
   ListIcon,
   LockIcon,
-  SearchIcon,
   SettingsIcon,
 } from "lucide-react"
 
-import { NavDocuments } from "@/components/layout/root/nav-documents"
 import { NavMain } from "@/components/layout/root/nav-main"
 import { NavSecondary } from "@/components/layout/root/nav-secondary"
 import { NavUser } from "@/components/layout/root/nav-user"
