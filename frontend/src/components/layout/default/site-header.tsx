@@ -29,32 +29,24 @@ export function SiteHeader() {
   const SiteHeaderBreadcrumb = () => (
     <Breadcrumb>
       <BreadcrumbList>
-        {pathname === '/' ? (
-          <BreadcrumbItem className='text-lg font-black'>
-            <BreadcrumbPage>Home</BreadcrumbPage>
-          </BreadcrumbItem>
-        ) : (
-          <>
-            {pathSegments.map((item, index) => {
-              const isLast = index === pathSegments.length - 1
-              const to = '/' + pathSegments.slice(0, index + 1).join('/')
-              return (
-                <BreadcrumbItem key={to} className='text-lg font-black'>
-                  {isLast ? (
-                    <BreadcrumbPage>{toTitle(item)}</BreadcrumbPage>
-                  ) : (
-                    <>
-                      <BreadcrumbLink asChild>
-                        <Link to={to}>{toTitle(item)}</Link>
-                      </BreadcrumbLink>
-                      <BreadcrumbSeparator />
-                    </>
-                  )}
-                </BreadcrumbItem>
-              )
-            })}
-          </>
-        )}
+        {pathSegments.map((item, index) => {
+          const isLast = index === pathSegments.length - 1
+          const to = '/' + pathSegments.slice(0, index + 1).join('/')
+          return (
+            <BreadcrumbItem key={to}>
+              {isLast ? (
+                <BreadcrumbPage>{toTitle(item)}</BreadcrumbPage>
+              ) : (
+                <>
+                  <BreadcrumbLink asChild>
+                    <Link to={to}>{toTitle(item)}</Link>
+                  </BreadcrumbLink>
+                  <BreadcrumbSeparator />
+                </>
+              )}
+            </BreadcrumbItem>
+          )
+        })}
       </BreadcrumbList>
     </Breadcrumb>
   )
