@@ -14,9 +14,9 @@ import {
   SettingsIcon,
 } from "lucide-react"
 
-import { NavMain } from "@/components/layout/root/nav-main"
-import { NavSecondary } from "@/components/layout/root/nav-secondary"
-import { NavUser } from "@/components/layout/root/nav-user"
+import { NavMain } from "@/components/layout/default/nav-main"
+import { NavSecondary } from "@/components/layout/default/nav-secondary"
+import { NavUser } from "@/components/layout/default/nav-user"
 import {
   Sidebar,
   SidebarContent,
