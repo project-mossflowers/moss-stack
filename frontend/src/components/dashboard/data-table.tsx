@@ -620,7 +620,7 @@ export function DataTable({
           </div>
         </div>
       </TabsContent>
-      <TabsContent
+      {/* <TabsContent
         value="past-performance"
         className="flex flex-col px-4 lg:px-6"
       >
@@ -634,7 +634,7 @@ export function DataTable({
         className="flex flex-col px-4 lg:px-6"
       >
         <div className="aspect-video w-full flex-1 rounded-lg border border-dashed"></div>
-      </TabsContent>
+      </TabsContent> */}
     </Tabs>
   )
 }
