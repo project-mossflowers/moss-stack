@@ -32,7 +32,7 @@ export function SiteHeader() {
     <Breadcrumb>
       <BreadcrumbList>
         {pathname === '/' ? (
-          <BreadcrumbItem>
+          <BreadcrumbItem className='text-lg font-black'>
             <BreadcrumbPage>Home</BreadcrumbPage>
           </BreadcrumbItem>
         ) : (
@@ -41,7 +41,7 @@ export function SiteHeader() {
               const isLast = index === pathSegments.length - 1
               const to = '/' + pathSegments.slice(0, index + 1).join('/')
               return (
-                <BreadcrumbItem key={to}>
+                <BreadcrumbItem key={to} className='text-lg font-black'>
                   {isLast ? (
                     <BreadcrumbPage>{toTitle(item)}</BreadcrumbPage>
                   ) : (
