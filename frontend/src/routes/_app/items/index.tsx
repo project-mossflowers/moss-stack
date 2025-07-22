@@ -14,7 +14,7 @@ function RouteComponent() {
       <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
         <div className="mx-auto w-full rounded-xl flex items-center justify-between px-4 lg:px-6">
           <div>
-            <PageTitle />
+            <PageTitle title='Item List'/>
           </div>
           <div>
             <Button>Add Item</Button>

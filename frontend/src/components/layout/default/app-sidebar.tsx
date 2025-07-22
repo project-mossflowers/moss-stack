@@ -95,14 +95,14 @@ const data = {
   ],
   navSecondary: [
     {
-      title: "Settings",
-      url: "/settings",
-      icon: SettingsIcon,
-    },
-    {
       title: "Admin",
       url: "/admin",
       icon: LockIcon,
+    },
+    {
+      title: "Settings",
+      url: "/settings",
+      icon: SettingsIcon,
     },
     // {
     //   title: "Search",

@@ -1,11 +1,10 @@
-import { cn, toTitle } from "@/lib/utils"
-import { useLocation } from "@tanstack/react-router"
+import { cn } from "@/lib/utils"
 
 
 
-export function PageTitle({className, ...props}: React.HTMLAttributes<HTMLHeadingElement>) {
-    const title = useLocation().pathname.split('/').pop()
+export function PageTitle({ title, className, ...props }: { title: string } & React.HTMLAttributes<HTMLHeadingElement>) {
+
   return (
-      <h1 className={cn("text-2xl font-bload", className)} {...props}>{title?toTitle(title):'Home'}</h1>
+      <h1 className={cn("text-2xl font-bload", className)} {...props}>{title}</h1>
   )
 }
