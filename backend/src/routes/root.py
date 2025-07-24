@@ -1,30 +1,20 @@
-from fastapi import APIRouter, Depends
-from src.database import get_session
-from src.routes.models import Song, SongCreate
-from sqlmodel import select
-from sqlmodel.ext.asyncio.session import AsyncSession
+from fastapi import APIRouter
+from src.routes.auth import route as auth
+from src.routes.users import route as users
+from src.routes.items import route as items
+from src.routes.private import route as private
+from src.config import settings
 
 
-router = APIRouter(tags=["root"])
 
+router = APIRouter()
+router.include_router(auth.router)
+router.include_router(users.router)
+router.include_router(items.router)
 
-@router.get("/ping")
-async def pong():
-    return {"ping": "pong!"}
+if settings.ENVIRONMENT == "local":
+    router.include_router(private.router)
 
-
-@router.get("/songs", response_model=list[Song])
-async def get_songs(session: AsyncSession = Depends(get_session)):
-    result = await session.exec(select(Song))
-    songs = result.all()
-    return [Song(name=song.name, artist=song.artist, id=song.id) for song in songs]
-
-
-@router.post("/songs")
-async def add_song(song: SongCreate, session: AsyncSession = Depends(get_session)):
-    song = Song(name=song.name, artist=song.artist)
-    session.add(song)
-    await session.commit()
-    await session.refresh(song)
-    return song
-
+@router.get("/health-check/", tags=["system"])
+async def health_check() -> bool:
+    return True
