@@ -35,10 +35,12 @@ async def read_users(session: AsyncSessionDep, skip: int = 0, limit: int = 100) 
     """
 
     count_statement = select(func.count()).select_from(User)
-    count = await session.exec(count_statement).one()
+    count_result = await session.exec(count_statement)
+    count = count_result.one()
 
     statement = select(User).offset(skip).limit(limit)
-    users = await session.exec(statement).all()
+    users_result = await session.exec(statement)
+    users = users_result.all()
 
     return UsersPublic(data=users, count=count)
 
@@ -157,7 +159,7 @@ async def read_user_by_id(
     """
     Get a specific user by id.
     """
-    user = session.get(User, user_id)
+    user = await session.get(User, user_id)
     if user == current_user:
         return user
     if not current_user.is_superuser:
@@ -183,7 +185,7 @@ async def update_user(
     Update a user.
     """
 
-    db_user = session.get(User, user_id)
+    db_user = await session.get(User, user_id)
     if not db_user:
         raise HTTPException(
             status_code=404,
@@ -207,7 +209,7 @@ async def delete_user(
     """
     Delete a user.
     """
-    user = session.get(User, user_id)
+    user = await session.get(User, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
     if user == current_user:

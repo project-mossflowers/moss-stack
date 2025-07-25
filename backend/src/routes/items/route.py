@@ -23,9 +23,11 @@ async def read_items(
 
     if current_user.is_superuser:
         count_statement = select(func.count()).select_from(Item)
-        count = await session.exec(count_statement).one()
+        count_result = await session.exec(count_statement)
+        count = count_result.one()
         statement = select(Item).offset(skip).limit(limit)
-        items = await session.exec(statement).all()
+        items_result = await session.exec(statement)
+        items = items_result.all()
     else:
         count_statement = (
             select(func.count())
@@ -49,7 +51,7 @@ async def read_item(session: AsyncSessionDep, current_user: CurrentUser, id: uui
     """
     Get item by ID.
     """
-    item = session.get(Item, id)
+    item = await session.get(Item, id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     if not current_user.is_superuser and (item.owner_id != current_user.id):
@@ -82,7 +84,7 @@ async def update_item(
     """
     Update an item.
     """
-    item = session.get(Item, id)
+    item = await session.get(Item, id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     if not current_user.is_superuser and (item.owner_id != current_user.id):
@@ -102,7 +104,7 @@ async def delete_item(
     """
     Delete an item.
     """
-    item = session.get(Item, id)
+    item = await session.get(Item, id)
     if not item:
         raise HTTPException(status_code=404, detail="Item not found")
     if not current_user.is_superuser and (item.owner_id != current_user.id):
