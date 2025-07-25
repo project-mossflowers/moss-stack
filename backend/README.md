@@ -14,3 +14,10 @@ uv run fastapi dev src/main.py
 uv run alembic revision --autogenerate -m "Update migration"
 uv run alembic upgrade head
 ```
+
+## ruff
+
+```bash
+uv run ruff check
+uv run ruff format
+```
