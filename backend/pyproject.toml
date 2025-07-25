@@ -12,5 +12,6 @@ dependencies = [
     "passlib[bcrypt]>=1.7.4",
     "pydantic-settings>=2.10.1",
     "pyjwt[crypto]>=2.10.1",
+    "ruff>=0.12.5",
     "sqlmodel>=0.0.24",
 ]
