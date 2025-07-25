@@ -19,6 +19,7 @@ from src.utils.auth import (
     verify_password_reset_token,
 )
 from src.routes.auth import service as auth_service
+
 router = APIRouter(tags=["auth"])
 
 

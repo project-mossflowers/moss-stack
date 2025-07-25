@@ -1,5 +1,3 @@
-
-
 import uuid
 from typing import Any
 
@@ -7,7 +5,16 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlmodel import col, delete, func, select
 
 from src.routes.items.models import Item
-from src.routes.users.models import UpdatePassword, User, UserCreate, UserPublic, UserUpdate, UserUpdateMe, UsersPublic, UserRegister
+from src.routes.users.models import (
+    UpdatePassword,
+    User,
+    UserCreate,
+    UserPublic,
+    UserUpdate,
+    UserUpdateMe,
+    UsersPublic,
+    UserRegister,
+)
 from src.routes.users import service as user_service
 from src.routes.deps import (
     CurrentUser,
@@ -81,7 +88,9 @@ async def update_user_me(
     """
 
     if user_in.email:
-        existing_user = await user_service.get_user_by_email(session=session, email=user_in.email)
+        existing_user = await user_service.get_user_by_email(
+            session=session, email=user_in.email
+        )
         if existing_user and existing_user.id != current_user.id:
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
@@ -192,13 +201,17 @@ async def update_user(
             detail="The user with this id does not exist in the system",
         )
     if user_in.email:
-        existing_user = await user_service.get_user_by_email(session=session, email=user_in.email)
+        existing_user = await user_service.get_user_by_email(
+            session=session, email=user_in.email
+        )
         if existing_user and existing_user.id != user_id:
             raise HTTPException(
                 status_code=409, detail="User with this email already exists"
             )
 
-    db_user = await user_service.update_user(session=session, db_user=db_user, user_in=user_in)
+    db_user = await user_service.update_user(
+        session=session, db_user=db_user, user_in=user_in
+    )
     return db_user
 
 

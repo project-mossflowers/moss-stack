@@ -16,10 +16,12 @@ def custom_generate_unique_id(route: APIRoute) -> str:
 if settings.SENTRY_DSN and settings.ENVIRONMENT != "local":
     sentry_sdk.init(dsn=str(settings.SENTRY_DSN), enable_tracing=True)
 
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await init_db()
     yield
+
 
 app = FastAPI(
     title=settings.PROJECT_NAME,
@@ -27,7 +29,6 @@ app = FastAPI(
     generate_unique_id_function=custom_generate_unique_id,
     lifespan=lifespan,
 )
-
 
 
 # Set all CORS enabled origins
@@ -41,6 +42,3 @@ if settings.all_cors_origins:
     )
 
 app.include_router(root_router, prefix=settings.API_V1_STR)
-
-
-

@@ -5,7 +5,13 @@ from fastapi import APIRouter, HTTPException
 from sqlmodel import func, select
 
 from src.routes.deps import AsyncSessionDep
-from src.routes.items.models import Item, ItemCreate, ItemPublic, ItemsPublic, ItemUpdate
+from src.routes.items.models import (
+    Item,
+    ItemCreate,
+    ItemPublic,
+    ItemsPublic,
+    ItemUpdate,
+)
 from src.routes.deps import CurrentUser
 from src.routes.models import Message
 
@@ -47,7 +53,9 @@ async def read_items(
 
 
 @router.get("/{id}", response_model=ItemPublic)
-async def read_item(session: AsyncSessionDep, current_user: CurrentUser, id: uuid.UUID) -> Any:
+async def read_item(
+    session: AsyncSessionDep, current_user: CurrentUser, id: uuid.UUID
+) -> Any:
     """
     Get item by ID.
     """

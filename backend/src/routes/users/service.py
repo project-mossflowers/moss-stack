@@ -15,7 +15,9 @@ async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User
     return db_obj
 
 
-async def update_user(*, session: AsyncSession, db_user: User, user_in: UserUpdate) -> Any:
+async def update_user(
+    *, session: AsyncSession, db_user: User, user_in: UserUpdate
+) -> Any:
     user_data = user_in.model_dump(exclude_unset=True)
     extra_data = {}
     if "password" in user_data:

@@ -1,5 +1,3 @@
-
-
 from fastapi import HTTPException, status
 import jwt
 from typing import Annotated

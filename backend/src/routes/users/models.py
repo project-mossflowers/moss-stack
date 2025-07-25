@@ -3,6 +3,7 @@ import uuid
 from pydantic import EmailStr
 from sqlmodel import Field, Relationship, SQLModel
 
+
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
@@ -15,12 +16,13 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
-    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True) # type: ignore  # noqa: F821
+    items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)  # type: ignore  # noqa: F821
 
 
 # Properties to receive via API on creation
 class UserCreate(UserBase):
     password: str = Field(min_length=8, max_length=40)
+
 
 class UserRegister(SQLModel):
     email: EmailStr = Field(max_length=255)
