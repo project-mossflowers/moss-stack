@@ -5,7 +5,7 @@ export default defineConfig({
   output: {
     format: 'prettier',
     lint: 'eslint',
-    path: './src/client',
+    path: './src/api',
   },
   // exportSchemas: true,
   plugins: [
@@ -23,5 +23,6 @@ export default defineConfig({
       transformer: true,
     },
     '@tanstack/react-query',
+    '@hey-api/client-axios'
   ],
 })
