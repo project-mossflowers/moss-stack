@@ -64,11 +64,11 @@ docker-compose up                        # Start all services
 - **`src/components/`**: Reusable UI components (dashboard, layout, forms) and shadcn/ui components
 - **`src/api/`**: Auto-generated OpenAPI client and custom API utilities
 - **`src/hooks/`**: Custom React hooks for auth, error handling, and UI state
-- **`src/integrations/tanstack-query/`**: TanStack Query provider setup
+- **`src/integrations/`**: External service integrations (TanStack Query, OpenAPI client config)
 
 ### Key Integration Points
 - **OpenAPI Code Generation**: Backend FastAPI automatically generates OpenAPI schema, frontend uses `@hey-api/openapi-ts` to generate TypeScript client
-- **Authentication**: JWT tokens stored in localStorage, automatic inclusion in API requests via Axios interceptors
+- **Authentication**: JWT tokens stored in localStorage, automatic inclusion in API requests via Axios interceptors in `src/integrations/openapi-client/config.ts`
 - **Environment Configuration**: Backend reads from `.env` file, frontend uses Vite environment variables
 
 ### Database Management
