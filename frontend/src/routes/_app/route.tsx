@@ -1,10 +1,18 @@
 import { AppSidebar } from '@/components/layout/default/app-sidebar'
 import { SiteHeader } from '@/components/layout/default/site-header'
 import { SidebarInset, SidebarProvider } from '@/components/ui/sidebar'
-import { createFileRoute, Outlet } from '@tanstack/react-router'
+import { isLoggedIn } from '@/hooks/use-auth'
+import { createFileRoute, Outlet, redirect } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/_app')({
   component: RouteComponent,
+  beforeLoad: async () => {
+    if (!isLoggedIn()) {
+      throw redirect({
+        to: '/login',
+      })
+    }
+  },
 })
 
 function RouteComponent() {
