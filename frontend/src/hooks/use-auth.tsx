@@ -4,19 +4,17 @@ import {
   usersRegisterUserMutation,
 } from '@/api/@tanstack/react-query.gen'
 
-import { useMutation, useQuery } from '@tanstack/react-query'
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { useState } from 'react'
 import { useHandleError } from '@/hooks/use-handle-error'
 
-const isLoggedIn = () => {
-  return localStorage.getItem('access_token') !== null
-}
+const getToken = () => localStorage.getItem('access_token')
+const isLoggedIn = () => getToken() !== null
 
 const useAuth = () => {
-  const [error, setError] = useState<string | null>(null)
   const navigate = useNavigate()
   const handleError = useHandleError()
+  const queryClient = useQueryClient()
 
   const { data: user } = useQuery({
     ...usersReadUserMeOptions(),
@@ -25,16 +23,21 @@ const useAuth = () => {
 
   const signUpMutation = useMutation({
     ...usersRegisterUserMutation(),
-    onSuccess: () => {
-      navigate({ to: '/login' })
-    },
+    onSuccess: () => navigate({ to: '/login' }),
     onError: handleError,
+    onSettled: () =>
+      queryClient.invalidateQueries({
+        queryKey: usersReadUserMeOptions().queryKey,
+      }),
   })
 
   const loginMutation = useMutation({
     ...authLoginAccessTokenMutation(),
     onSuccess: (data) => {
       localStorage.setItem('access_token', data.access_token)
+      queryClient.invalidateQueries({
+        queryKey: usersReadUserMeOptions().queryKey,
+      })
       navigate({ to: '/' })
     },
     onError: handleError,
@@ -42,6 +45,7 @@ const useAuth = () => {
 
   const logout = () => {
     localStorage.removeItem('access_token')
+    queryClient.clear()
     navigate({ to: '/login' })
   }
 
@@ -50,8 +54,7 @@ const useAuth = () => {
     loginMutation,
     logout,
     user,
-    error,
-    resetError: () => setError(null),
+    isAuthenticated: isLoggedIn(),
   }
 }
 
