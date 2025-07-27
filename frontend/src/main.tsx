@@ -10,29 +10,10 @@ import { routeTree } from './routeTree.gen'
 import './styles.css'
 import reportWebVitals from './reportWebVitals.ts'
 import { ThemeProvider } from './components/theme-provider.tsx'
+import { configureApiClient } from './integrations/openapi-client/config.ts'
 
-import { client } from './api/client.gen'
-
-const BASE_URL = import.meta.env.VITE_API_URL ;
-// configure internal service client
-client.setConfig({
-  baseURL: BASE_URL,
-  headers: {
-    Authorization: `Bearer ${localStorage.getItem('access_token') || ''}`,
-  },
-});
-
-client.instance.interceptors.request.use((config) => {
-  const token = localStorage.getItem('access_token');
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
-  } else {
-    delete config.headers.Authorization;
-  }
-  return config;
-}, (error) => {
-  return Promise.reject(error);
-});
+// Configure API client
+configureApiClient()
 
 // Create a new router instance
 const router = createRouter({
