@@ -54,7 +54,7 @@ export function SiteHeader() {
   const ThemeTrigger = React.forwardRef<
     React.ElementRef<typeof Button>,
     React.ComponentProps<typeof Button>
-  >(({ className, onClick, ...props }, ref) => {
+  >(({ className }) => {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>

@@ -12,6 +12,18 @@ This is a full-stack application with a FastAPI backend and React frontend, desi
 - **Database**: PostgreSQL with async SQLAlchemy
 - **Deployment**: Docker Compose with Traefik reverse proxy
 
+## Project Structure
+
+This is a monorepo with clear separation between frontend and backend:
+
+```
+moss-stack/
+├── backend/          # FastAPI Python backend
+├── frontend/         # React TypeScript frontend
+├── scripts/          # Build and deployment scripts
+└── docker-compose.yml # Production deployment configuration
+```
+
 ## Development Commands
 
 ### Frontend (React + TypeScript)
@@ -19,22 +31,22 @@ This is a full-stack application with a FastAPI backend and React frontend, desi
 cd frontend
 pnpm install          # Install dependencies
 pnpm dev              # Start development server on port 3000
-pnpm build            # Build for production
+pnpm build            # Build for production (includes TypeScript compilation)
 pnpm test             # Run tests with Vitest
 pnpm lint             # Run ESLint
-pnpm format           # Run Prettier
-pnpm check            # Format and fix linting issues
+pnpm format           # Run Prettier formatting
+pnpm check            # Format with Prettier and fix linting issues
 pnpm generate-client  # Generate OpenAPI client from backend
 ```
 
 ### Backend (FastAPI + Python)
 ```bash
 cd backend
-uv run fastapi dev src/main.py           # Start development server
-uv run alembic upgrade head              # Run database migrations
+uv run fastapi dev src/main.py           # Start development server on port 8000
+uv run alembic upgrade head              # Apply database migrations
 uv run alembic revision --autogenerate -m "message"  # Create new migration
-uv run ruff check                        # Lint with Ruff
-uv run ruff format                       # Format with Ruff
+uv run ruff check                        # Lint code with Ruff
+uv run ruff format                       # Format code with Ruff
 ```
 
 ### Full Stack Development
@@ -42,9 +54,18 @@ uv run ruff format                       # Format with Ruff
 # Generate OpenAPI client (run from project root)
 ./scripts/generate-client.sh
 
-# Start services with Docker Compose
-docker-compose up db                     # Start database only
-docker-compose up                        # Start all services
+# One-click development deployment (with hot reload)
+./scripts/dev-deploy.sh                       
+
+# One-click production deployment  
+./scripts/prod-deploy.sh                      
+
+# Manual Docker Compose commands
+docker-compose -f docker-compose.dev.yml up --build  # Start development services
+docker-compose -f docker-compose.dev.yml down        # Stop development services  
+docker-compose up --build                            # Start production services
+docker-compose down                                   # Stop production services
+docker-compose logs -f                               # View logs
 ```
 
 ## Code Architecture
@@ -79,9 +100,20 @@ docker-compose up                        # Start all services
 
 ### Development Workflow
 1. Make backend changes
-2. Run `./scripts/generate-client.sh` to update frontend API client
+2. Run `./scripts/generate-client.sh` to update frontend API client (automatically extracts OpenAPI schema and generates TypeScript client)
 3. Update frontend to use new API endpoints
-4. Run database migrations if schema changes were made
+4. Run database migrations if schema changes were made with `uv run alembic upgrade head`
+
+### Package Management
+- **Frontend**: Uses `pnpm` with workspace configuration
+- **Backend**: Uses `uv` for fast Python package management and virtual environments
+
+### Docker Deployment
+- **Separate Configurations**: `docker-compose.yml` for production, `docker-compose.dev.yml` for development
+- **Development Mode**: Hot reload with selective volume mounts to avoid node_modules conflicts
+- **Production Mode**: Optimized builds with Nginx for frontend and FastAPI for backend
+- **Volume Management**: Smart volume mounting prevents Docker container conflicts
+- **Core Services**: Database (PostgreSQL), Backend (FastAPI), Frontend (React)
 
 ### Key Files to Understand
 - **`backend/src/routes/models.py`**: Main data models and schemas
@@ -91,4 +123,21 @@ docker-compose up                        # Start all services
 
 ## Environment Setup
 
-The application requires environment variables in a `.env` file at the project root. Key variables include database credentials, JWT secret, CORS origins, and email configuration for production deployments.
+The application requires environment variables in a `.env` file at the project root. 
+
+### Development
+Run `./scripts/dev-deploy.sh` to automatically create a development `.env` file with sensible defaults.
+
+### Production
+Copy `.env.example` to `.env` and update the values:
+
+**Required Variables:**
+- `PROJECT_NAME`: Application name
+- `SECRET_KEY`: Strong secret key for JWT tokens
+- `POSTGRES_SERVER`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database connection
+- `FIRST_SUPERUSER`, `FIRST_SUPERUSER_PASSWORD`: Initial admin user credentials
+- `BACKEND_CORS_ORIGINS`: Comma-separated list of allowed origins
+
+**Optional Variables:**
+- SMTP configuration for email functionality
+- `SENTRY_DSN` for error monitoring

@@ -24,14 +24,16 @@ services:
   backend:
     build:
       context: ./backend
-      target: ${BUILD_TARGET:-production}
+      target: dev
     restart: always
     ports:
-      - "${BACKEND_PORT:-8000}:8000"
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+      - backend-uv-cache:/root/.cache/uv
     depends_on:
       db:
         condition: service_healthy
-    
     env_file:
       - .env
     environment:
@@ -44,7 +46,7 @@ services:
       - FIRST_SUPERUSER=${FIRST_SUPERUSER:-admin@example.com}
       - FIRST_SUPERUSER_PASSWORD=${FIRST_SUPERUSER_PASSWORD:-changethis}
       - BACKEND_CORS_ORIGINS=${BACKEND_CORS_ORIGINS:-http://localhost,http://localhost:3000}
-      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - ENVIRONMENT=${ENVIRONMENT:-local}
       - DOMAIN=${DOMAIN:-localhost}
       - FRONTEND_HOST=${FRONTEND_HOST:-http://localhost:3000}
       - PROJECT_NAME=${PROJECT_NAME:-Moss Stack}
@@ -52,16 +54,23 @@ services:
   frontend:
     build:
       context: ./frontend
-      args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
-        - NODE_ENV=${NODE_ENV:-production}
+      dockerfile: Dockerfile.dev
     restart: always
     ports:
-      - "${FRONTEND_PORT:-3000}:80"
+      - "3000:3000"
+    volumes:
+      - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
+      - ./frontend/index.html:/app/index.html
+      - ./frontend/vite.config.ts:/app/vite.config.ts
+      - ./frontend/tsconfig.json:/app/tsconfig.json
+      - ./frontend/tailwind.config.js:/app/tailwind.config.js
+      - ./frontend/postcss.config.js:/app/postcss.config.js
     env_file:
       - .env
     environment:
-      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000}
+      - VITE_API_URL=http://localhost:8000
 
 volumes:
   app-db-data:
+  backend-uv-cache:
