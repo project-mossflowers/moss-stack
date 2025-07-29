@@ -1,17 +1,8 @@
-import { LoginForm } from '@/components/login-form'
-import { isLoggedIn } from '@/hooks/use-auth'
-import { createFileRoute, redirect } from '@tanstack/react-router'
+import { createFileRoute, Outlet } from '@tanstack/react-router'
 import { GalleryVerticalEnd } from 'lucide-react'
 
-export const Route = createFileRoute('/(auth)/login')({
+export const Route = createFileRoute('/_auth')({
   component: RouteComponent,
-  beforeLoad: async () => {
-    if (isLoggedIn()) {
-      throw redirect({
-        to: '/',
-      })
-    }
-  },
 })
 
 function RouteComponent() {
@@ -24,7 +15,11 @@ function RouteComponent() {
           </div>
           Acme Inc.
         </a>
-        <LoginForm />
+        <Outlet />
+        <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 [&_a]:hover:text-primary  ">
+          By clicking continue, you agree to our{' '}
+          <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>.
+        </div>
       </div>
     </div>
   )

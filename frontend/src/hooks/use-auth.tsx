@@ -21,7 +21,7 @@ const useAuth = () => {
     enabled: isLoggedIn(),
   })
 
-  const signUpMutation = useMutation({
+  const signupMutation = useMutation({
     ...usersRegisterUserMutation(),
     onSuccess: () => navigate({ to: '/login' }),
     onError: handleError,
@@ -50,7 +50,7 @@ const useAuth = () => {
   }
 
   return {
-    signUpMutation,
+    signupMutation: signupMutation,
     loginMutation,
     logout,
     user,
