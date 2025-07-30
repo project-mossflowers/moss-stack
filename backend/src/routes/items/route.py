@@ -40,14 +40,16 @@ async def read_items(
             .select_from(Item)
             .where(Item.owner_id == current_user.id)
         )
-        count = await session.exec(count_statement).one()
+        count_result = await session.exec(count_statement)
+        count = count_result.one()
         statement = (
             select(Item)
             .where(Item.owner_id == current_user.id)
             .offset(skip)
             .limit(limit)
         )
-        items = await session.exec(statement).all()
+        items_result = await session.exec(statement)
+        items = items_result.all()
 
     return ItemsPublic(data=items, count=count)
 
