@@ -24,18 +24,15 @@ import { zodResolver } from '@hookform/resolvers/zod'
 import { useMutation } from '@tanstack/react-query'
 import { useForm } from 'react-hook-form'
 import { useState } from 'react'
-import z from 'zod'
+import {
+  createItemSchema,
+  type CreateItemData,
+} from '@/routes/_app/items/-schemas'
 
 export function CreateItemDialog() {
   const handleError = useHandleError()
-  const {toast} = useToast()
+  const { toast } = useToast()
   const [open, setOpen] = useState(false)
-
-  const createItemSchema = z.object({
-    title: z.string().min(1, 'Name is required'),
-    description: z.string().min(1, 'Username is required'),
-  })
-  type CreateItemData = z.infer<typeof createItemSchema>
 
   const form = useForm<CreateItemData>({
     resolver: zodResolver(createItemSchema),
@@ -78,7 +75,10 @@ export function CreateItemDialog() {
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form>
+          <form
+            className="space-y-6 py-4 px-0"
+            onSubmit={form.handleSubmit(handleSubmit)}
+          >
             <FormField
               control={form.control}
               name="title"
@@ -102,7 +102,7 @@ export function CreateItemDialog() {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Discription</FormLabel>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="description"
@@ -114,16 +114,18 @@ export function CreateItemDialog() {
                 </FormItem>
               )}
             />
+
+            <DialogFooter className="mt-4">
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full sm:w-auto"
+              >
+                {isLoading ? 'Creating...' : 'Create'}
+              </Button>
+            </DialogFooter>
           </form>
         </Form>
-        <DialogFooter>
-          <Button
-            onClick={form.handleSubmit(handleSubmit)}
-            disabled={isLoading}
-          >
-            {isLoading ? 'Creating...' : 'Create'}
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
