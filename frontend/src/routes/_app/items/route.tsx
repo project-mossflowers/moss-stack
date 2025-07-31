@@ -1,10 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import data from '../dashboard/data.json'
 import { PageTitle } from '@/components/page-title'
 
-import z from 'zod'
-import { itemsReadItems } from '@/api'
-import { itemsReadItemQueryKey } from '@/api/@tanstack/react-query.gen'
+import { z } from 'zod'
+import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
 import { useQuery } from '@tanstack/react-query'
 import { CreateItemDialog } from './-components/create-item-dialog'
 import { DataTable } from './-components/items-table'
@@ -16,13 +14,9 @@ const itemsSearchSchema = z.object({
 const PER_PAGE = 10
 
 function getItemsQueryOptions({ page }: { page: number }) {
-  return {
-    queryFn: () =>
-      itemsReadItems({
-        query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
-      }),
-    queryKey: [itemsReadItemQueryKey, { page }],
-  }
+  return itemsReadItemsOptions({
+    query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
+  })
 }
 
 export const Route = createFileRoute('/_app/items')({
@@ -51,14 +45,19 @@ function RouteComponent() {
           </div>
         </div>
 
-        <div className="grid auto-rows-min gap-4 md:grid-cols-4 px-4 lg:px-6">
-          <div className="aspect-video rounded-xl bg-muted/50 h-84" />
-          <div className="aspect-video rounded-xl bg-muted/50 h-84" />
-          <div className="aspect-video rounded-xl bg-muted/50 h-84" />
-          <div className="aspect-video rounded-xl bg-muted/50 h-84" />
-        </div>
-
-        <DataTable data={data} />
+        {result.isLoading ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-muted-foreground">Loading items...</div>
+          </div>
+        ) : result.isError ? (
+          <div className="flex items-center justify-center py-8">
+            <div className="text-destructive">
+              Error loading items: {result.error?.message || 'Unknown error'}
+            </div>
+          </div>
+        ) : (
+          <DataTable data={result.data?.data || []} />
+        )}
       </div>
     </>
   )
