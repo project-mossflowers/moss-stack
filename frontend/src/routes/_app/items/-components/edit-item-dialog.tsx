@@ -1,11 +1,13 @@
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button"
+import { LoaderIcon, PencilIcon } from 'lucide-react'
+import type { ItemPublic, ItemUpdate } from '@/api/types.gen'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -22,17 +24,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { LoaderIcon, PencilIcon } from "lucide-react"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
-import { itemsUpdateItemMutation, itemsReadItemsQueryKey } from "@/api/@tanstack/react-query.gen"
-import type { ItemPublic, ItemUpdate } from "@/api/types.gen"
+import {
+  itemsReadItemsQueryKey,
+  itemsUpdateItemMutation,
+} from '@/api/@tanstack/react-query.gen'
 
 const updateItemSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255, "Title too long"),
-  description: z.string().max(255, "Description too long").optional(),
+  title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
+  description: z.string().max(255, 'Description too long').optional(),
 })
 
 type UpdateItemForm = z.infer<typeof updateItemSchema>
@@ -40,34 +43,45 @@ type UpdateItemForm = z.infer<typeof updateItemSchema>
 interface EditItemDialogProps {
   item: ItemPublic
   onSuccess?: () => void
+  trigger?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function EditItemDialog({ item, onSuccess }: EditItemDialogProps) {
-  const [open, setOpen] = React.useState(false)
+export function EditItemDialog({
+  item,
+  onSuccess,
+  trigger,
+  open: controlledOpen,
+  onOpenChange,
+}: EditItemDialogProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen
+  const setOpen = onOpenChange || setInternalOpen
   const queryClient = useQueryClient()
 
   const form = useForm<UpdateItemForm>({
     resolver: zodResolver(updateItemSchema),
     defaultValues: {
       title: item.title,
-      description: item.description || "",
+      description: item.description || '',
     },
   })
 
   const updateMutation = useMutation({
     ...itemsUpdateItemMutation(),
     onSuccess: () => {
-      toast.success("Item updated successfully")
+      toast.success('Item updated successfully')
       // 使用正确的查询键来失效缓存
-      queryClient.invalidateQueries({ 
-        queryKey: itemsReadItemsQueryKey() 
+      queryClient.invalidateQueries({
+        queryKey: itemsReadItemsQueryKey(),
       })
       setOpen(false)
       form.reset()
       onSuccess?.()
     },
     onError: (error: any) => {
-      toast.error(`Failed to update item: ${error.message || "Unknown error"}`)
+      toast.error(`Failed to update item: ${error.message || 'Unknown error'}`)
     },
   })
 
@@ -76,7 +90,7 @@ export function EditItemDialog({ item, onSuccess }: EditItemDialogProps) {
       title: values.title,
       description: values.description || null,
     }
-    
+
     updateMutation.mutate({
       path: { id: item.id },
       body: updateData,
@@ -87,19 +101,22 @@ export function EditItemDialog({ item, onSuccess }: EditItemDialogProps) {
     if (open) {
       form.reset({
         title: item.title,
-        description: item.description || "",
+        description: item.description || '',
       })
     }
   }, [open, item, form])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="ghost" size="sm" className="h-8 px-2">
-          <PencilIcon className="h-4 w-4" />
-          <span className="sr-only">Edit item</span>
-        </Button>
-      </DialogTrigger>
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
+      {!trigger && controlledOpen === undefined && (
+        <DialogTrigger asChild>
+          <Button variant="ghost" size="sm" className="h-8 px-2">
+            <PencilIcon className="h-4 w-4" />
+            <span className="sr-only">Edit item</span>
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit Item</DialogTitle>
@@ -155,7 +172,7 @@ export function EditItemDialog({ item, onSuccess }: EditItemDialogProps) {
                     Saving...
                   </>
                 ) : (
-                  "Save Changes"
+                  'Save Changes'
                 )}
               </Button>
             </DialogFooter>

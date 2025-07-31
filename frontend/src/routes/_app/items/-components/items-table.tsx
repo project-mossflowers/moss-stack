@@ -1,12 +1,9 @@
-import * as React from "react"
+import * as React from 'react'
 import {
-  type ColumnDef,
-  type SortingState,
-  type VisibilityState,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table'
 import {
   ArrowUpDownIcon,
   ChevronDownIcon,
@@ -17,27 +14,36 @@ import {
   ColumnsIcon,
   MoreVerticalIcon,
   SearchIcon,
-} from "lucide-react"
-import { useNavigate } from "@tanstack/react-router"
+} from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { EditItemDialog } from './edit-item-dialog'
+import { DeleteItemDialog } from './delete-item-dialog'
+import type {
+  ColumnDef,
+  SortingState,
+  VisibilityState,
+} from '@tanstack/react-table'
 
-import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
+import type { ItemPublic, ItemSortField } from '@/api/types.gen'
+import { Button } from '@/components/ui/button'
+import { Checkbox } from '@/components/ui/checkbox'
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+  DropdownMenuSeparator,
+} from '@/components/ui/dropdown-menu'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
+} from '@/components/ui/select'
 import {
   Table,
   TableBody,
@@ -45,12 +51,9 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table'
 
-import type { ItemPublic } from "@/api/types.gen"
-import { ItemSortField, SortOrder } from "@/api/types.gen"
-import { EditItemDialog } from "./edit-item-dialog"
-import { DeleteItemDialog } from "./delete-item-dialog"
+import { SortOrder } from '@/api/types.gen'
 
 interface PaginationInfo {
   page: number
@@ -67,15 +70,15 @@ interface SearchParams {
   sort_order: SortOrder
 }
 
-const columns: ColumnDef<ItemPublic>[] = [
+const columns: Array<ColumnDef<ItemPublic>> = [
   {
-    id: "select",
+    id: 'select',
     header: ({ table }) => (
       <div className="flex items-center justify-center">
         <Checkbox
           checked={
             table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
+            (table.getIsSomePageRowsSelected() && 'indeterminate')
           }
           onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
           aria-label="Select all"
@@ -96,39 +99,35 @@ const columns: ColumnDef<ItemPublic>[] = [
     size: 50,
   },
   {
-    accessorKey: "title",
+    accessorKey: 'title',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="h-8 px-2"
       >
         Title
         <ArrowUpDownIcon className="ml-2 h-4 w-4" />
       </Button>
     ),
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {row.original.title}
-      </div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.title}</div>,
     enableHiding: false,
   },
   {
-    accessorKey: "description",
-    header: "Description",
+    accessorKey: 'description',
+    header: 'Description',
     cell: ({ row }) => (
       <div className="text-muted-foreground max-w-96 truncate">
-        {row.original.description || "No description"}
+        {row.original.description || 'No description'}
       </div>
     ),
   },
   {
-    accessorKey: "created_at",
+    accessorKey: 'created_at',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="h-8 px-2"
       >
         Created
@@ -142,11 +141,11 @@ const columns: ColumnDef<ItemPublic>[] = [
     ),
   },
   {
-    accessorKey: "updated_at",
+    accessorKey: 'updated_at',
     header: ({ column }) => (
       <Button
         variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
         className="h-8 px-2"
       >
         Updated
@@ -160,30 +159,60 @@ const columns: ColumnDef<ItemPublic>[] = [
     ),
   },
   {
-    id: "actions",
-    header: "Actions",
-    cell: ({ row }) => (
-      <div className="flex items-center gap-1">
-        <EditItemDialog item={row.original} />
-        <DeleteItemDialog item={row.original} />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
-              size="icon"
-            >
-              <MoreVerticalIcon />
-              <span className="sr-only">More options</span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-32">
-            <DropdownMenuItem>Duplicate</DropdownMenuItem>
-            <DropdownMenuItem>View Details</DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-    ),
+    id: 'actions',
+    header: 'Actions',
+    cell: ({ row }) => {
+      const [editOpen, setEditOpen] = React.useState(false)
+      const [deleteOpen, setDeleteOpen] = React.useState(false)
+
+      return (
+        <div className="flex items-center gap-1">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => {
+              // View details functionality
+            }}
+          >
+            View Details
+          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                className="flex size-8 text-muted-foreground data-[state=open]:bg-muted"
+                size="icon"
+              >
+                <MoreVerticalIcon />
+                <span className="sr-only">More options</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-32">
+              <DropdownMenuItem onClick={() => setEditOpen(true)}>
+                Edit
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem 
+                onClick={() => setDeleteOpen(true)}
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+          <EditItemDialog
+            item={row.original}
+            open={editOpen}
+            onOpenChange={setEditOpen}
+          />
+          <DeleteItemDialog
+            item={row.original}
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+          />
+        </div>
+      )
+    },
     size: 140,
   },
 ]
@@ -193,7 +222,7 @@ export function DataTable({
   pagination,
   searchParams,
 }: {
-  data: ItemPublic[]
+  data: Array<ItemPublic>
   pagination?: PaginationInfo
   searchParams: SearchParams
 }) {
@@ -201,7 +230,9 @@ export function DataTable({
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [searchInput, setSearchInput] = React.useState(searchParams.search || "")
+  const [searchInput, setSearchInput] = React.useState(
+    searchParams.search || '',
+  )
 
   // Initialize sorting state based on URL params
   const [sorting, setSorting] = React.useState<SortingState>([
@@ -235,14 +266,14 @@ export function DataTable({
     if (sorting.length > 0) {
       const sortField = sorting[0].id as ItemSortField
       const sortOrder = sorting[0].desc ? SortOrder.DESC : SortOrder.ASC
-      
+
       navigate({
         to: '/items',
-        search: (prev: any) => ({ 
-          ...prev, 
-          sort_by: sortField, 
+        search: (prev: any) => ({
+          ...prev,
+          sort_by: sortField,
           sort_order: sortOrder,
-          page: 1 // Reset to first page when sorting changes
+          page: 1, // Reset to first page when sorting changes
         }),
       })
     }
@@ -265,10 +296,10 @@ export function DataTable({
   const handleSearch = () => {
     navigate({
       to: '/items',
-      search: (prev: any) => ({ 
-        ...prev, 
-        search: searchInput || undefined, 
-        page: 1 // Reset to first page when searching
+      search: (prev: any) => ({
+        ...prev,
+        search: searchInput || undefined,
+        page: 1, // Reset to first page when searching
       }),
     })
   }
@@ -280,13 +311,13 @@ export function DataTable({
   }
 
   const clearSearch = () => {
-    setSearchInput("")
+    setSearchInput('')
     navigate({
       to: '/items',
-      search: (prev: any) => ({ 
-        ...prev, 
-        search: undefined, 
-        page: 1 
+      search: (prev: any) => ({
+        ...prev,
+        search: undefined,
+        page: 1,
       }),
     })
   }
@@ -294,13 +325,30 @@ export function DataTable({
   return (
     <div className="flex w-full flex-col gap-6">
       <div className="flex items-center justify-between px-4 lg:px-6">
-        <div className="flex items-center gap-4">
-          <h2 className="text-lg font-semibold">Items</h2>
+        <div className="flex items-center gap-2 flex-1 max-w-md">
+          <div className="relative flex-1">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search items..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={handleSearch} size="sm" variant="default">
+            Search
+          </Button>
+          {searchParams.search && (
+            <Button onClick={clearSearch} size="sm" variant="outline">
+              Clear
+            </Button>
+          )}
+        </div>
+        <div className="flex items-center gap-2">
           <div className="text-sm text-muted-foreground">
             {pagination?.total || 0} item(s)
           </div>
-        </div>
-        <div className="flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
@@ -314,8 +362,8 @@ export function DataTable({
                 .getAllColumns()
                 .filter(
                   (column) =>
-                    typeof column.accessorFn !== "undefined" &&
-                    column.getCanHide()
+                    typeof column.accessorFn !== 'undefined' &&
+                    column.getCanHide(),
                 )
                 .map((column) => {
                   return (
@@ -335,30 +383,6 @@ export function DataTable({
           </DropdownMenu>
         </div>
       </div>
-      
-      {/* Search Bar */}
-      <div className="px-4 lg:px-6">
-        <div className="flex items-center gap-2">
-          <div className="relative flex-1 max-w-sm">
-            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-            <Input
-              placeholder="Search items..."
-              value={searchInput}
-              onChange={(e) => setSearchInput(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-              className="pl-10"
-            />
-          </div>
-          <Button onClick={handleSearch} size="sm">
-            Search
-          </Button>
-          {searchParams.search && (
-            <Button onClick={clearSearch} variant="outline" size="sm">
-              Clear
-            </Button>
-          )}
-        </div>
-      </div>
 
       <div className="overflow-hidden rounded-lg border mx-4 lg:mx-6">
         <Table>
@@ -372,7 +396,7 @@ export function DataTable({
                         ? null
                         : flexRender(
                             header.column.columnDef.header,
-                            header.getContext()
+                            header.getContext(),
                           )}
                     </TableHead>
                   )
@@ -385,11 +409,14 @@ export function DataTable({
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
+                  data-state={row.getIsSelected() && 'selected'}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
-                      {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                      {flexRender(
+                        cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )}
                     </TableCell>
                   ))}
                 </TableRow>
@@ -409,7 +436,7 @@ export function DataTable({
       </div>
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex-1 text-sm text-muted-foreground">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
+          {table.getFilteredSelectedRowModel().rows.length} of{' '}
           {pagination?.total || 0} row(s) selected.
         </div>
         <div className="flex items-center gap-6">

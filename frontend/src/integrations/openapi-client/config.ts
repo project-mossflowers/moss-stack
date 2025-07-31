@@ -36,7 +36,7 @@ export function configureApiClient() {
     },
     (error) => {
       return Promise.reject(error)
-    }
+    },
   )
 
   // 可选：配置响应拦截器处理认证错误
@@ -49,6 +49,6 @@ export function configureApiClient() {
         // 可以在这里触发重定向到登录页
       }
       return Promise.reject(error)
-    }
+    },
   )
 }

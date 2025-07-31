@@ -7,7 +7,6 @@ const emailSchema = z
   .email('Please enter a valid email address')
   .min(1, 'Email is required')
 
-
 /**
  * 基础密码验证
  */
@@ -19,9 +18,10 @@ const passwordSchema = z
 /**
  * 强密码验证（用于注册）
  */
-const strongPasswordSchema = passwordSchema
-  .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, 
-    'Password must contain at least one uppercase letter, one lowercase letter, and one number')
+const strongPasswordSchema = passwordSchema.regex(
+  /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
+  'Password must contain at least one uppercase letter, one lowercase letter, and one number',
+)
 
 /**
  * 登录表单验证模式
@@ -34,15 +34,17 @@ export const loginSchema = z.object({
 /**
  * 注册表单验证模式
  */
-export const signupSchema = z.object({
-  email: emailSchema,
-  password: strongPasswordSchema,
-  confirmPassword: z.string(),
-  fullName: z.string().optional(),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-})
+export const signupSchema = z
+  .object({
+    email: emailSchema,
+    password: strongPasswordSchema,
+    confirmPassword: z.string(),
+    fullName: z.string().optional(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'],
+  })
 
 export type LoginFormData = z.infer<typeof loginSchema>
 export type SignupFormData = z.infer<typeof signupSchema>

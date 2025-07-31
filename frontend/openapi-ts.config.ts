@@ -1,7 +1,7 @@
-import { defineConfig } from '@hey-api/openapi-ts';
+import { defineConfig } from '@hey-api/openapi-ts'
 
 export default defineConfig({
-  input: "./openapi.json",
+  input: './openapi.json',
   output: {
     format: 'prettier',
     lint: 'eslint',
@@ -23,6 +23,6 @@ export default defineConfig({
       transformer: true,
     },
     '@tanstack/react-query',
-    '@hey-api/client-axios'
+    '@hey-api/client-axios',
   ],
 })

@@ -1,11 +1,13 @@
-import * as React from "react"
-import { useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { z } from "zod"
-import { useMutation, useQueryClient } from "@tanstack/react-query"
-import { toast } from "sonner"
+import * as React from 'react'
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { z } from 'zod'
+import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button"
+import { LoaderIcon, PlusIcon } from 'lucide-react'
+import type { ItemCreate } from '@/api/types.gen'
+import { Button } from '@/components/ui/button'
 import {
   Dialog,
   DialogContent,
@@ -14,7 +16,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
+} from '@/components/ui/dialog'
 import {
   Form,
   FormControl,
@@ -22,17 +24,18 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { LoaderIcon, PlusIcon } from "lucide-react"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
 
-import { itemsCreateItemMutation, itemsReadItemsQueryKey } from "@/api/@tanstack/react-query.gen"
-import type { ItemCreate } from "@/api/types.gen"
+import {
+  itemsCreateItemMutation,
+  itemsReadItemsQueryKey,
+} from '@/api/@tanstack/react-query.gen'
 
 const createItemSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255, "Title too long"),
-  description: z.string().max(255, "Description too long").optional(),
+  title: z.string().min(1, 'Title is required').max(255, 'Title too long'),
+  description: z.string().max(255, 'Description too long').optional(),
 })
 
 type CreateItemForm = z.infer<typeof createItemSchema>
@@ -48,25 +51,25 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
   const form = useForm<CreateItemForm>({
     resolver: zodResolver(createItemSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: '',
+      description: '',
     },
   })
 
   const createMutation = useMutation({
     ...itemsCreateItemMutation(),
     onSuccess: () => {
-      toast.success("Item created successfully")
+      toast.success('Item created successfully')
       // Invalidate all items queries to ensure fresh data
-      queryClient.invalidateQueries({ 
-        queryKey: itemsReadItemsQueryKey() 
+      queryClient.invalidateQueries({
+        queryKey: itemsReadItemsQueryKey(),
       })
       setOpen(false)
       form.reset()
       onSuccess?.()
     },
     onError: (error: any) => {
-      toast.error(`Failed to create item: ${error.message || "Unknown error"}`)
+      toast.error(`Failed to create item: ${error.message || 'Unknown error'}`)
     },
   })
 
@@ -75,7 +78,7 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
       title: values.title,
       description: values.description || null,
     }
-    
+
     createMutation.mutate({
       body: createData,
     })
@@ -84,8 +87,8 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
   React.useEffect(() => {
     if (open) {
       form.reset({
-        title: "",
-        description: "",
+        title: '',
+        description: '',
       })
     }
   }, [open, form])
@@ -153,7 +156,7 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
                     Creating...
                   </>
                 ) : (
-                  "Create Item"
+                  'Create Item'
                 )}
               </Button>
             </DialogFooter>

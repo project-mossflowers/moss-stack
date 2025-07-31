@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from 'react'
 import {
   ArrowUpCircleIcon,
   CameraIcon,
@@ -11,11 +11,11 @@ import {
   ListIcon,
   LockIcon,
   SettingsIcon,
-} from "lucide-react"
+} from 'lucide-react'
 
-import { NavMain } from "@/components/layout/default/nav-main"
-import { NavSecondary } from "@/components/layout/default/nav-secondary"
-import { NavUser } from "@/components/layout/default/nav-user"
+import { NavMain } from '@/components/layout/default/nav-main'
+import { NavSecondary } from '@/components/layout/default/nav-secondary'
+import { NavUser } from '@/components/layout/default/nav-user'
 import {
   Sidebar,
   SidebarContent,
@@ -24,83 +24,83 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from '@/components/ui/sidebar'
 
 const data = {
   user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
+    name: 'shadcn',
+    email: 'm@example.com',
+    avatar: '/avatars/shadcn.jpg',
   },
   navMain: [
     {
-      title: "Dashboard",
-      url: "/dashboard",
+      title: 'Dashboard',
+      url: '/dashboard',
       icon: LayoutDashboardIcon,
     },
     {
-      title: "Items",
-      url: "/items",
+      title: 'Items',
+      url: '/items',
       icon: ListIcon,
     },
   ],
   navClouds: [
     {
-      title: "Capture",
+      title: 'Capture',
       icon: CameraIcon,
       isActive: true,
-      url: "#",
+      url: '#',
       items: [
         {
-          title: "Active Proposals",
-          url: "#",
+          title: 'Active Proposals',
+          url: '#',
         },
         {
-          title: "Archived",
-          url: "#",
+          title: 'Archived',
+          url: '#',
         },
       ],
     },
     {
-      title: "Proposal",
+      title: 'Proposal',
       icon: FileTextIcon,
-      url: "#",
+      url: '#',
       items: [
         {
-          title: "Active Proposals",
-          url: "#",
+          title: 'Active Proposals',
+          url: '#',
         },
         {
-          title: "Archived",
-          url: "#",
+          title: 'Archived',
+          url: '#',
         },
       ],
     },
     {
-      title: "Prompts",
+      title: 'Prompts',
       icon: FileCodeIcon,
-      url: "#",
+      url: '#',
       items: [
         {
-          title: "Active Proposals",
-          url: "#",
+          title: 'Active Proposals',
+          url: '#',
         },
         {
-          title: "Archived",
-          url: "#",
+          title: 'Archived',
+          url: '#',
         },
       ],
     },
   ],
   navSecondary: [
     {
-      title: "Admin",
-      url: "/admin",
+      title: 'Admin',
+      url: '/admin',
       icon: LockIcon,
     },
     {
-      title: "Settings",
-      url: "/settings",
+      title: 'Settings',
+      url: '/settings',
       icon: SettingsIcon,
     },
     // {
@@ -111,18 +111,18 @@ const data = {
   ],
   documents: [
     {
-      name: "Data Library",
-      url: "#",
+      name: 'Data Library',
+      url: '#',
       icon: DatabaseIcon,
     },
     {
-      name: "Reports",
-      url: "#",
+      name: 'Reports',
+      url: '#',
       icon: ClipboardListIcon,
     },
     {
-      name: "Word Assistant",
-      url: "#",
+      name: 'Word Assistant',
+      url: '#',
       icon: FileIcon,
     },
   ],

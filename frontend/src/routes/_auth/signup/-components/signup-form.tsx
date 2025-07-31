@@ -1,3 +1,7 @@
+import { useForm } from 'react-hook-form'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { Link } from '@tanstack/react-router'
+import type { SignupFormData } from '@/routes/_auth/-schemas'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {
@@ -10,8 +14,6 @@ import {
 import { Input } from '@/components/ui/input'
 import { AppleIcon, GoogleIcon } from '@/components/ui/icons'
 import useAuth from '@/hooks/use-auth'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
 import {
   Form,
   FormControl,
@@ -20,8 +22,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { signupSchema, type SignupFormData } from '@/routes/_auth/-schemas'
-import { Link } from '@tanstack/react-router'
+import { signupSchema } from '@/routes/_auth/-schemas'
 
 export interface SignupFormProps
   extends React.ComponentPropsWithoutRef<'div'> {}

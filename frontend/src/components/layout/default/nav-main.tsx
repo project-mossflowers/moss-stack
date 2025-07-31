@@ -1,5 +1,5 @@
-import { type LucideIcon } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
+import type { LucideIcon } from 'lucide-react'
 
 import {
   SidebarGroup,
@@ -12,11 +12,11 @@ import {
 export function NavMain({
   items,
 }: {
-  items: {
+  items: Array<{
     title: string
     url: string
     icon?: LucideIcon
-  }[]
+  }>
 }) {
   return (
     <SidebarGroup>
@@ -28,7 +28,7 @@ export function NavMain({
                 <Link to={item.url}>
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
-                  </Link>
+                </Link>
               </SidebarMenuButton>
             </SidebarMenuItem>
           ))}

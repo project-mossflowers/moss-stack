@@ -7,8 +7,5 @@
   "git": false,
   "version": 1,
   "framework": "react-cra",
-  "chosenAddOns": [
-    "tanstack-query",
-    "eslint"
-  ]
+  "chosenAddOns": ["tanstack-query", "eslint"]
 }

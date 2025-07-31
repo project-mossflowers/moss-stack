@@ -1,7 +1,6 @@
 import uuid
 import math
 from typing import Any, Optional
-from datetime import datetime
 
 from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, select, or_, desc, asc

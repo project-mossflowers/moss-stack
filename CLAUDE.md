@@ -17,7 +17,7 @@ This is a full-stack application called "Moss Stack" - a modern web application 
 
 This is a monorepo with clear separation between frontend and backend:
 
-```
+```plaintext
 moss-stack/
 ├── backend/          # FastAPI Python backend
 │   ├── src/

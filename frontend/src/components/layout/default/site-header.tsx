@@ -1,3 +1,6 @@
+import { Link, useLocation } from '@tanstack/react-router'
+import { Moon, Sun } from 'lucide-react'
+import React from 'react'
 import { useTheme } from '@/components/theme-provider'
 import {
   Breadcrumb,
@@ -17,9 +20,6 @@ import {
 import { Separator } from '@/components/ui/separator'
 import { SidebarTrigger } from '@/components/ui/sidebar'
 import { cn, toTitle } from '@/lib/utils'
-import { Link, useLocation } from '@tanstack/react-router'
-import { Moon, Sun } from 'lucide-react'
-import React from 'react'
 
 export function SiteHeader() {
   const pathname = useLocation().pathname

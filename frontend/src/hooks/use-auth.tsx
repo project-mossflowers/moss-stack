@@ -1,11 +1,10 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 import {
   authLoginAccessTokenMutation,
   usersReadUserMeOptions,
   usersRegisterUserMutation,
 } from '@/api/@tanstack/react-query.gen'
-
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
 import { useHandleError } from '@/hooks/use-handle-error'
 
 const getToken = () => localStorage.getItem('access_token')

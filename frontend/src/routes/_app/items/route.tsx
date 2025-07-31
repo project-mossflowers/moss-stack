@@ -1,11 +1,11 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { PageTitle } from '@/components/page-title'
 
 import { z } from 'zod'
-import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
 import { useQuery } from '@tanstack/react-query'
 import { CreateItemDialog } from './-components/create-item-dialog'
 import { DataTable } from './-components/items-table'
+import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
+import { PageTitle } from '@/components/page-title'
 import { ItemSortField, SortOrder } from '@/api/types.gen'
 
 const itemsSearchSchema = z.object({
@@ -21,7 +21,7 @@ function getItemsQueryOptions(params: z.infer<typeof itemsSearchSchema>) {
     page: params.page,
     size: params.size,
   }
-  
+
   if (params.search) query.search = params.search
   if (params.sort_by) query.sort_by = params.sort_by
   if (params.sort_order) query.sort_order = params.sort_order
@@ -67,8 +67,8 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <DataTable 
-            data={result.data?.data || []} 
+          <DataTable
+            data={result.data?.data || []}
             pagination={{
               page: result.data?.page || 1,
               size: result.data?.size || 10,
