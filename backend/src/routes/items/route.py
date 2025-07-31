@@ -1,7 +1,8 @@
 import uuid
+import math
 from typing import Any
 
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from sqlmodel import func, select
 
 from src.routes.deps import AsyncSessionDep
@@ -21,37 +22,64 @@ router = APIRouter(prefix="/items", tags=["items"])
 
 @router.get("/", response_model=ItemsPublic)
 async def read_items(
-    session: AsyncSessionDep, current_user: CurrentUser, skip: int = 0, limit: int = 100
+    session: AsyncSessionDep, 
+    current_user: CurrentUser,
+    page: int = Query(default=1, ge=1, description="Page number (starts from 1)"),
+    size: int = Query(default=10, ge=1, le=100, description="Number of items per page"),
 ) -> Any:
     """
-    Retrieve items.
+    Retrieve items with pagination.
+    
+    Args:
+        page: Page number (1-based)
+        size: Number of items per page (1-100)
+    
+    Returns:
+        Paginated list of items with metadata
     """
+    # Calculate offset
+    offset = (page - 1) * size
 
     if current_user.is_superuser:
+        # Get total count
         count_statement = select(func.count()).select_from(Item)
         count_result = await session.exec(count_statement)
-        count = count_result.one()
-        statement = select(Item).offset(skip).limit(limit)
+        total = count_result.one()
+        
+        # Get items
+        statement = select(Item).offset(offset).limit(size)
         items_result = await session.exec(statement)
         items = items_result.all()
     else:
+        # Get total count for user's items
         count_statement = (
             select(func.count())
             .select_from(Item)
             .where(Item.owner_id == current_user.id)
         )
         count_result = await session.exec(count_statement)
-        count = count_result.one()
+        total = count_result.one()
+        
+        # Get user's items
         statement = (
             select(Item)
             .where(Item.owner_id == current_user.id)
-            .offset(skip)
-            .limit(limit)
+            .offset(offset)
+            .limit(size)
         )
         items_result = await session.exec(statement)
         items = items_result.all()
 
-    return ItemsPublic(data=items, count=count)
+    # Calculate total pages
+    pages = math.ceil(total / size) if total > 0 else 1
+
+    return ItemsPublic(
+        data=items,
+        page=page,
+        size=size,
+        total=total,
+        pages=pages
+    )
 
 
 @router.get("/{id}", response_model=ItemPublic)

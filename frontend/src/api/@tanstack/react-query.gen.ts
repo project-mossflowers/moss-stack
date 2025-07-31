@@ -3,6 +3,8 @@
 import {
   
   
+  
+  infiniteQueryOptions,
   queryOptions
 } from '@tanstack/react-query'
 import {
@@ -31,7 +33,7 @@ import {
   usersUpdateUserMe
 } from '../sdk.gen'
 import { client as _heyApiClient } from '../client.gen'
-import type {DefaultError, UseMutationOptions} from '@tanstack/react-query';
+import type {DefaultError, InfiniteData, UseMutationOptions} from '@tanstack/react-query';
 import type {Options} from '../sdk.gen';
 import type {
   AuthLoginAccessTokenData,
@@ -56,6 +58,8 @@ import type {
   ItemsDeleteItemResponse,
   ItemsReadItemData,
   ItemsReadItemsData,
+  ItemsReadItemsError,
+  ItemsReadItemsResponse,
   ItemsUpdateItemData,
   ItemsUpdateItemError,
   ItemsUpdateItemResponse,
@@ -712,7 +716,14 @@ export const itemsReadItemsQueryKey = (options?: Options<ItemsReadItemsData>) =>
 
 /**
  * Read Items
- * Retrieve items.
+ * Retrieve items with pagination.
+ *
+ * Args:
+ * page: Page number (1-based)
+ * size: Number of items per page (1-100)
+ *
+ * Returns:
+ * Paginated list of items with metadata
  */
 export const itemsReadItemsOptions = (
   options?: Options<ItemsReadItemsData>,
@@ -729,6 +740,101 @@ export const itemsReadItemsOptions = (
     },
     queryKey: itemsReadItemsQueryKey(options),
   })
+}
+
+const createInfiniteParams = <
+  K extends Pick<QueryKey<Options>[0], 'body' | 'headers' | 'path' | 'query'>,
+>(
+  queryKey: QueryKey<Options>,
+  page: K,
+) => {
+  const params = {
+    ...queryKey[0],
+  }
+  if (page.body) {
+    params.body = {
+      ...(queryKey[0].body as any),
+      ...(page.body as any),
+    }
+  }
+  if (page.headers) {
+    params.headers = {
+      ...queryKey[0].headers,
+      ...page.headers,
+    }
+  }
+  if (page.path) {
+    params.path = {
+      ...(queryKey[0].path as any),
+      ...(page.path as any),
+    }
+  }
+  if (page.query) {
+    params.query = {
+      ...(queryKey[0].query as any),
+      ...(page.query as any),
+    }
+  }
+  return params as unknown as typeof page
+}
+
+export const itemsReadItemsInfiniteQueryKey = (
+  options?: Options<ItemsReadItemsData>,
+): QueryKey<Options<ItemsReadItemsData>> =>
+  createQueryKey('itemsReadItems', options, true)
+
+/**
+ * Read Items
+ * Retrieve items with pagination.
+ *
+ * Args:
+ * page: Page number (1-based)
+ * size: Number of items per page (1-100)
+ *
+ * Returns:
+ * Paginated list of items with metadata
+ */
+export const itemsReadItemsInfiniteOptions = (
+  options?: Options<ItemsReadItemsData>,
+) => {
+  return infiniteQueryOptions<
+    ItemsReadItemsResponse,
+    AxiosError<ItemsReadItemsError>,
+    InfiniteData<ItemsReadItemsResponse>,
+    QueryKey<Options<ItemsReadItemsData>>,
+    | number
+    | Pick<
+        QueryKey<Options<ItemsReadItemsData>>[0],
+        'body' | 'headers' | 'path' | 'query'
+      >
+  >(
+    // @ts-ignore
+    {
+      queryFn: async ({ pageParam, queryKey, signal }) => {
+        // @ts-ignore
+        const page: Pick<
+          QueryKey<Options<ItemsReadItemsData>>[0],
+          'body' | 'headers' | 'path' | 'query'
+        > =
+          typeof pageParam === 'object'
+            ? pageParam
+            : {
+                query: {
+                  page: pageParam,
+                },
+              }
+        const params = createInfiniteParams(queryKey, page)
+        const { data } = await itemsReadItems({
+          ...options,
+          ...params,
+          signal,
+          throwOnError: true,
+        })
+        return data
+      },
+      queryKey: itemsReadItemsInfiniteQueryKey(options),
+    },
+  )
 }
 
 export const itemsCreateItemQueryKey = (

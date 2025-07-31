@@ -1,211 +1,264 @@
-# moss-stack
+# Moss Stack
 
-## 前端 CRUD 实现指南 - 以 Item 为例
+一个现代化的全栈应用模板，展示了如何使用 FastAPI + React + TypeScript 构建完整的 CRUD 应用。
 
-本项目展示了如何在现代 React 应用中实现完整的 CRUD（增删改查）功能。以下是基于 Item 实体的实现细节。
+## 🏗️ 技术栈
 
-### 🏗️ 架构概览
+### 后端
 
-我们的 CRUD 实现基于以下技术栈：
+- **FastAPI** - 现代 Python Web 框架
+- **SQLModel** - 类型安全的 ORM
+- **PostgreSQL** - 关系型数据库
+- **Alembic** - 数据库迁移工具
+- **JWT** - 身份认证
+
+### 前端
 
 - **React** + **TypeScript** - 类型安全的组件开发
+- **TanStack Router** - 文件路由系统
 - **TanStack Query** - 服务端状态管理和缓存
 - **React Hook Form** + **Zod** - 表单管理和验证
 - **Shadcn/ui** - 现代化 UI 组件库
-- **Sonner** - 优雅的 Toast 通知
+- **Tailwind CSS** - 原子化 CSS 框架
 
-### 📁 项目结构
+## 🚀 快速开始
 
-```plaintext
-frontend/src/routes/_app/items/
-├── route.tsx                    # 主页面路由
-├── -components/
-│   ├── items-table.tsx         # 数据表格组件
-│   ├── create-item-dialog.tsx  # 创建对话框
-│   ├── edit-item-dialog.tsx    # 编辑对话框
-│   └── delete-item-dialog.tsx  # 删除确认对话框
-└── -schemas/
-    └── index.ts                # 表单验证 schema
+### 开发环境
+
+```bash
+# 一键启动开发环境（包含热重载）
+./scripts/dev-deploy.sh
+
+# 生成 TypeScript API 客户端
+./scripts/generate-client.sh
 ```
 
-### 🔧 实现步骤
+### 生产环境
+
+```bash
+# 一键部署生产环境
+./scripts/prod-deploy.sh
+```
+
+## 📁 项目结构
+
+```plaintext
+moss-stack/
+├── backend/          # FastAPI 后端
+│   ├── src/
+│   │   ├── routes/   # API 路由模块
+│   │   ├── models/   # 数据模型
+│   │   └── core/     # 核心功能（认证、安全）
+├── frontend/         # React 前端
+│   ├── src/
+│   │   ├── routes/   # 文件路由
+│   │   ├── components/ # UI 组件
+│   │   └── api/      # 自动生成的 API 客户端
+└── scripts/          # 构建和部署脚本
+```
+
+## 💡 核心特性
+
+### 🔄 服务端分页
+
+实现了高效的服务端分页系统：
+
+**后端 API**  
+
+```python
+@router.get("/", response_model=ItemsPublic)
+async def read_items(
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=10, ge=1, le=100),
+):
+    # 高效的分页查询实现
+```
+
+**响应格式**  
+
+```json
+{
+  "data": [...],
+  "page": 1,
+  "size": 10,
+  "total": 100,
+  "pages": 10
+}
+```
+
+**前端状态管理**  
+
+```typescript
+// URL 状态持久化
+const { page, size } = Route.useSearch()
+
+// 类型安全的导航
+const handlePageChange = (newPage: number) => {
+  navigate({
+    to: '/items',
+    search: (prev: any) => ({ ...prev, page: newPage }),
+  })
+}
+```
+
+### 🎯 CRUD 最佳实践
 
 #### 1. 创建功能 (Create)
 
-**核心特性：**
-
 - 使用 `react-hook-form` + `zod` 进行表单验证
+- 自动缓存失效确保数据一致性
 - 统一的错误处理和加载状态
-- 成功后自动刷新表格数据
 
 ```typescript
-// create-item-dialog.tsx 关键代码片段
 const createMutation = useMutation({
   ...itemsCreateItemMutation(),
   onSuccess: () => {
     toast.success("Item created successfully")
-    // 失效查询缓存，触发数据刷新
+    // 智能缓存失效
     queryClient.invalidateQueries({ 
       queryKey: itemsReadItemsQueryKey() 
     })
     setOpen(false)
     form.reset()
-  },
-  onError: (error: any) => {
-    toast.error(`Failed to create item: ${error.message || "Unknown error"}`)
-  },
+  }
 })
 ```
 
-#### 2. 读取功能 (Read)
+#### 2. 数据表格 (Read)
 
-**核心特性：**
-
-- 使用 TanStack Query 进行数据获取和缓存
-- 支持分页、排序、筛选
-- 自动错误处理和加载状态
+- 服务端分页、排序、筛选
+- `@tanstack/react-table` 强大的表格功能
+- URL 状态同步，支持书签和分享
 
 ```typescript
-// route.tsx 关键代码片段
-const result = useQuery({
-  ...getItemsQueryOptions({ page }),
-  placeholderData: (prevData) => prevData,
+const table = useReactTable({
+  data,
+  columns,
+  manualPagination: true,
+  pageCount: pagination?.pages || 1,
+  // ... 其他配置
 })
-
-// 在组件中使用
-{result.isLoading ? (
-  <div>Loading items...</div>
-) : result.isError ? (
-  <div>Error loading items: {result.error?.message}</div>
-) : (
-  <DataTable data={result.data?.data || []} />
-)}
 ```
 
-#### 3. 更新功能 (Update)
-
-**核心特性：**
+#### 3. 编辑功能 (Update)
 
 - 预填充现有数据
+- 乐观更新提升用户体验
 - 表单验证和错误处理
-- 乐观更新用户界面
-
-```typescript
-// edit-item-dialog.tsx 关键代码片段
-const updateMutation = useMutation({
-  ...itemsUpdateItemMutation(),
-  onSuccess: () => {
-    toast.success("Item updated successfully")
-    queryClient.invalidateQueries({ 
-      queryKey: itemsReadItemsQueryKey() 
-    })
-    setOpen(false)
-    form.reset()
-  },
-  onError: (error: any) => {
-    toast.error(`Failed to update item: ${error.message || "Unknown error"}`)
-  },
-})
-```
 
 #### 4. 删除功能 (Delete)
 
-**核心特性：**
-
 - 安全的删除确认对话框
-- 清晰的用户提示
-- 防止误操作
+- 防误操作保护
+- 清晰的用户反馈
+
+### 🔐 认证系统
+
+- JWT Token 自动管理
+- 路由级别的权限控制
+- Token 刷新和自动登出
+
+### 🎨 用户界面
+
+- 响应式设计适配所有设备
+- 一致的设计语言
+- 优雅的加载和错误状态
+- 无障碍访问支持
+
+## 🛠️ 开发指南
+
+### 添加新的 CRUD 模块
+
+1. **后端模型定义**
+
+```python
+# backend/src/routes/{module}/models.py
+class EntityBase(SQLModel):
+    name: str = Field(min_length=1, max_length=255)
+
+class Entity(EntityBase, table=True):
+    id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    # ... 其他字段
+```
+
+2. **API 路由实现**
+
+```python
+# backend/src/routes/{module}/route.py
+@router.get("/", response_model=EntitiesPublic)
+async def read_entities(
+    page: int = Query(default=1, ge=1),
+    size: int = Query(default=10, ge=1, le=100),
+):
+    # 分页查询实现
+```
+
+3. **前端组件开发**
 
 ```typescript
-// delete-item-dialog.tsx 关键代码片段
-const deleteMutation = useMutation({
-  ...itemsDeleteItemMutation(),
-  onSuccess: () => {
-    toast.success("Item deleted successfully")
-    queryClient.invalidateQueries({ 
-      queryKey: itemsReadItemsQueryKey() 
-    })
-    setOpen(false)
-  },
-  onError: (error: any) => {
-    toast.error(`Failed to delete item: ${error.message || "Unknown error"}`)
-  },
+// frontend/src/routes/_app/{module}/route.tsx
+export const Route = createFileRoute('/_app/{module}')({
+  component: ModuleComponent,
+  validateSearch: (search) => moduleSearchSchema.parse(search),
 })
 ```
 
-### 🎯 最佳实践
+4. **生成 API 客户端**
 
-#### 1. 统一的错误处理
-
-```typescript
-// 所有 mutation 都使用相同的错误处理模式
-onError: (error: any) => {
-  toast.error(`操作失败: ${error.message || "Unknown error"}`)
-}
+```bash
+./scripts/generate-client.sh
 ```
 
-#### 2. 一致的加载状态
+### 数据库迁移
 
-```typescript
-// 统一的加载状态显示
-{mutation.isPending ? (
-  <>
-    <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
-    Loading...
-  </>
-) : (
-  "Button Text"
-)}
+```bash
+# 创建迁移
+cd backend
+uv run alembic revision --autogenerate -m "Add new entity"
+
+# 应用迁移
+uv run alembic upgrade head
 ```
 
-#### 3. 智能缓存管理
+## 🔧 环境配置
 
-```typescript
-// 使用生成的查询键确保缓存一致性
-queryClient.invalidateQueries({ 
-  queryKey: itemsReadItemsQueryKey() 
-})
-```
+复制 `.env.example` 到 `.env` 并配置：
 
-#### 4. 类型安全的表单
+**必需变量：**
 
-```typescript
-// 使用 Zod schema 确保类型安全
-const formSchema = z.object({
-  title: z.string().min(1, "Title is required").max(255, "Title too long"),
-  description: z.string().max(255, "Description too long").optional(),
-})
+- `SECRET_KEY` - JWT 密钥
+- `POSTGRES_*` - 数据库连接
+- `FIRST_SUPERUSER_*` - 初始管理员账户
 
-type FormData = z.infer<typeof formSchema>
-```
+**可选变量：**
 
-### 🔄 数据流图
+- `SENTRY_DSN` - 错误监控
+- SMTP 配置 - 邮件功能
 
-```plaintext
-用户操作 → 表单提交 → API调用 → 缓存更新 → UI刷新
-    ↓           ↓         ↓        ↓         ↓
-  点击按钮 → 验证数据 → 发送请求 → 失效缓存 → 显示最新数据
-```
+## 📊 性能优化
 
-### 🛡️ 错误处理策略
+1. **前端优化**
+   - TanStack Query 智能缓存
+   - 组件懒加载
+   - 服务端分页减少数据传输
 
-1. **网络错误**：显示友好的错误消息
-2. **验证错误**：实时表单验证反馈
-3. **业务错误**：Toast 通知具体错误信息
-4. **加载状态**：防止重复提交和用户混淆
+2. **后端优化**
+   - 异步数据库操作
+   - 高效的分页查询
+   - 基于角色的数据过滤
 
-### 📊 性能优化
+3. **部署优化**
+   - Docker 多阶段构建
+   - Nginx 静态资源服务
+   - 生产环境健康检查
 
-1. **查询缓存**：避免重复的 API 请求
-2. **乐观更新**：提升用户体验
-3. **按需加载**：组件懒加载
-4. **类型推断**：减少运行时错误
+## 🎯 项目亮点
 
-### 🎨 用户体验
+- ✅ **类型安全** - 端到端 TypeScript 支持
+- ✅ **自动化** - API 客户端自动生成
+- ✅ **现代化** - 使用最新的技术栈
+- ✅ **可扩展** - 清晰的架构和模式
+- ✅ **开发体验** - 热重载和自动化工具
+- ✅ **生产就绪** - Docker 部署和监控
 
-1. **即时反馈**：Toast 通知操作结果
-2. **防误操作**：删除确认对话框
-3. **一致性**：统一的设计语言
-4. **响应式**：适配不同屏幕尺寸
-
-这个实现为现代 React 应用提供了一个完整的 CRUD 模板，可以轻松复制到其他实体的开发中。
+这个项目为现代 Web 应用开发提供了一个完整的模板，可以快速扩展到任何业务场景。

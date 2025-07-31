@@ -57,7 +57,7 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
     ...itemsCreateItemMutation(),
     onSuccess: () => {
       toast.success("Item created successfully")
-      // 使用正确的查询键来失效缓存，确保表格数据刷新
+      // Invalidate all items queries to ensure fresh data
       queryClient.invalidateQueries({ 
         queryKey: itemsReadItemsQueryKey() 
       })

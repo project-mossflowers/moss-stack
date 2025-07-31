@@ -174,13 +174,25 @@ export const ItemsPublicSchema = {
       type: 'array',
       title: 'Data',
     },
-    count: {
+    page: {
       type: 'integer',
-      title: 'Count',
+      title: 'Page',
+    },
+    size: {
+      type: 'integer',
+      title: 'Size',
+    },
+    total: {
+      type: 'integer',
+      title: 'Total',
+    },
+    pages: {
+      type: 'integer',
+      title: 'Pages',
     },
   },
   type: 'object',
-  required: ['data', 'count'],
+  required: ['data', 'page', 'size', 'total', 'pages'],
   title: 'ItemsPublic',
 } as const
 

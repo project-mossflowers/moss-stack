@@ -99,9 +99,21 @@ export type ItemsPublic = {
    */
   data: Array<ItemPublic>
   /**
-   * Count
+   * Page
    */
-  count: number
+  page: number
+  /**
+   * Size
+   */
+  size: number
+  /**
+   * Total
+   */
+  total: number
+  /**
+   * Pages
+   */
+  pages: number
 }
 
 /**
@@ -734,13 +746,15 @@ export type ItemsReadItemsData = {
   path?: never
   query?: {
     /**
-     * Skip
+     * Page
+     * Page number (starts from 1)
      */
-    skip?: number
+    page?: number
     /**
-     * Limit
+     * Size
+     * Number of items per page
      */
-    limit?: number
+    size?: number
   }
   url: '/api/v1/items/'
 }

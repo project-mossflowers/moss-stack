@@ -37,4 +37,7 @@ class ItemPublic(ItemBase):
 
 class ItemsPublic(SQLModel):
     data: list[ItemPublic]
-    count: int
+    page: int
+    size: int
+    total: int
+    pages: int

@@ -9,7 +9,6 @@ import {
   getFacetedRowModel,
   getFacetedUniqueValues,
   getFilteredRowModel,
-  getPaginationRowModel,
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
@@ -22,6 +21,7 @@ import {
   ColumnsIcon,
   MoreVerticalIcon,
 } from "lucide-react"
+import { useNavigate } from "@tanstack/react-router"
 
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
@@ -52,6 +52,13 @@ import {
 import type { ItemPublic } from "@/api/types.gen"
 import { EditItemDialog } from "./edit-item-dialog"
 import { DeleteItemDialog } from "./delete-item-dialog"
+
+interface PaginationInfo {
+  page: number
+  size: number
+  total: number
+  pages: number
+}
 
 const columns: ColumnDef<ItemPublic>[] = [
   {
@@ -140,9 +147,12 @@ const columns: ColumnDef<ItemPublic>[] = [
 
 export function DataTable({
   data,
+  pagination,
 }: {
   data: ItemPublic[]
+  pagination?: PaginationInfo
 }) {
+  const navigate = useNavigate()
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
@@ -150,10 +160,6 @@ export function DataTable({
     []
   )
   const [sorting, setSorting] = React.useState<SortingState>([])
-  const [pagination, setPagination] = React.useState({
-    pageIndex: 0,
-    pageSize: 10,
-  })
 
   const table = useReactTable({
     data,
@@ -163,7 +169,6 @@ export function DataTable({
       columnVisibility,
       rowSelection,
       columnFilters,
-      pagination,
     },
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
@@ -171,14 +176,28 @@ export function DataTable({
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
-    onPaginationChange: setPagination,
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
+    manualPagination: true,
+    pageCount: pagination?.pages || 1,
   })
+
+  const handlePageChange = (newPage: number) => {
+    navigate({
+      to: '/items',
+      search: (prev: any) => ({ ...prev, page: newPage }),
+    })
+  }
+
+  const handlePageSizeChange = (newSize: number) => {
+    navigate({
+      to: '/items',
+      search: (prev: any) => ({ ...prev, size: newSize, page: 1 }),
+    })
+  }
 
   return (
     <div className="flex w-full flex-col gap-6">
@@ -186,7 +205,7 @@ export function DataTable({
         <div className="flex items-center gap-4">
           <h2 className="text-lg font-semibold">Items</h2>
           <div className="text-sm text-muted-foreground">
-            {table.getFilteredRowModel().rows.length} item(s)
+            {pagination?.total || 0} item(s)
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -274,7 +293,7 @@ export function DataTable({
       <div className="flex items-center justify-between px-4 lg:px-6">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
+          {pagination?.total || 0} row(s) selected.
         </div>
         <div className="flex items-center gap-6">
           <div className="flex items-center gap-2">
@@ -282,15 +301,11 @@ export function DataTable({
               Rows per page
             </Label>
             <Select
-              value={`${table.getState().pagination.pageSize}`}
-              onValueChange={(value) => {
-                table.setPageSize(Number(value))
-              }}
+              value={`${pagination?.size || 10}`}
+              onValueChange={(value) => handlePageSizeChange(Number(value))}
             >
               <SelectTrigger className="w-20" id="rows-per-page">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
+                <SelectValue placeholder={pagination?.size || 10} />
               </SelectTrigger>
               <SelectContent side="top">
                 {[10, 20, 30, 40, 50].map((pageSize) => (
@@ -302,15 +317,14 @@ export function DataTable({
             </Select>
           </div>
           <div className="flex items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
+            Page {pagination?.page || 1} of {pagination?.pages || 1}
           </div>
           <div className="flex items-center gap-2">
             <Button
               variant="outline"
               className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => handlePageChange(1)}
+              disabled={!pagination || pagination.page <= 1}
             >
               <span className="sr-only">Go to first page</span>
               <ChevronsLeftIcon />
@@ -319,8 +333,8 @@ export function DataTable({
               variant="outline"
               className="size-8"
               size="icon"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
+              onClick={() => handlePageChange((pagination?.page || 1) - 1)}
+              disabled={!pagination || pagination.page <= 1}
             >
               <span className="sr-only">Go to previous page</span>
               <ChevronLeftIcon />
@@ -329,8 +343,8 @@ export function DataTable({
               variant="outline"
               className="size-8"
               size="icon"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
+              onClick={() => handlePageChange((pagination?.page || 1) + 1)}
+              disabled={!pagination || pagination.page >= pagination.pages}
             >
               <span className="sr-only">Go to next page</span>
               <ChevronRightIcon />
@@ -339,8 +353,8 @@ export function DataTable({
               variant="outline"
               className="hidden size-8 lg:flex"
               size="icon"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
+              onClick={() => handlePageChange(pagination?.pages || 1)}
+              disabled={!pagination || pagination.page >= pagination.pages}
             >
               <span className="sr-only">Go to last page</span>
               <ChevronsRightIcon />

@@ -9,13 +9,12 @@ import { DataTable } from './-components/items-table'
 
 const itemsSearchSchema = z.object({
   page: z.number().catch(1),
+  size: z.number().catch(10),
 })
 
-const PER_PAGE = 10
-
-function getItemsQueryOptions({ page }: { page: number }) {
+function getItemsQueryOptions({ page, size }: { page: number; size: number }) {
   return itemsReadItemsOptions({
-    query: { skip: (page - 1) * PER_PAGE, limit: PER_PAGE },
+    query: { page, size },
   })
 }
 
@@ -25,10 +24,10 @@ export const Route = createFileRoute('/_app/items')({
 })
 
 function RouteComponent() {
-  const { page } = Route.useSearch()
+  const { page, size } = Route.useSearch()
 
   const result = useQuery({
-    ...getItemsQueryOptions({ page }),
+    ...getItemsQueryOptions({ page, size }),
     placeholderData: (prevData) => prevData,
   })
 
@@ -55,7 +54,15 @@ function RouteComponent() {
             </div>
           </div>
         ) : (
-          <DataTable data={result.data?.data || []} />
+          <DataTable 
+            data={result.data?.data || []} 
+            pagination={{
+              page: result.data?.page || 1,
+              size: result.data?.size || 10,
+              total: result.data?.total || 0,
+              pages: result.data?.pages || 1,
+            }}
+          />
         )}
       </div>
     </>

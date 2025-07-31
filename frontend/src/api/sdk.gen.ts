@@ -459,7 +459,14 @@ export const usersUpdateUser = <ThrowOnError extends boolean = false>(
 
 /**
  * Read Items
- * Retrieve items.
+ * Retrieve items with pagination.
+ *
+ * Args:
+ * page: Page number (1-based)
+ * size: Number of items per page (1-100)
+ *
+ * Returns:
+ * Paginated list of items with metadata
  */
 export const itemsReadItems = <ThrowOnError extends boolean = false>(
   options?: Options<ItemsReadItemsData, ThrowOnError>,

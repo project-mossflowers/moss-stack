@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is a full-stack application called "Moss Stack" - a modern web application template with FastAPI backend and React frontend, featuring authentication, dashboard functionality, and CRUD operations.
 
 **Architecture:**
+
 - **Backend**: Python FastAPI with SQLModel, PostgreSQL, Alembic migrations, JWT authentication
 - **Frontend**: React with TypeScript, TanStack Router, TanStack Query, Tailwind CSS, shadcn/ui components
 - **Database**: PostgreSQL with async SQLAlchemy (asyncpg driver)
@@ -67,6 +68,7 @@ moss-stack/
 ## Development Commands
 
 ### Frontend (React + TypeScript)
+
 ```bash
 cd frontend
 pnpm install          # Install dependencies
@@ -80,6 +82,7 @@ pnpm generate-client  # Generate OpenAPI client from backend
 ```
 
 ### Backend (FastAPI + Python)
+
 ```bash
 cd backend
 uv run fastapi dev src/main.py           # Start development server on port 8000
@@ -90,6 +93,7 @@ uv run ruff format                       # Format code with Ruff
 ```
 
 ### Full Stack Development
+
 ```bash
 # Generate OpenAPI client (run from project root)
 ./scripts/generate-client.sh
@@ -111,6 +115,7 @@ docker-compose logs -f                               # View logs
 ## Code Architecture
 
 ### Backend Structure
+
 - **`src/main.py`**: FastAPI app entry point with CORS, Sentry, database initialization via lifespan events
 - **`src/config.py`**: Pydantic settings with environment variable configuration and validation
 - **`src/database.py`**: Async database connection using SQLModel and asyncpg
@@ -126,6 +131,7 @@ docker-compose logs -f                               # View logs
 - **`src/utils/`**: Utility functions for authentication and other common tasks
 
 ### Frontend Structure  
+
 - **`src/main.tsx`**: React app entry point with TanStack Router setup and API client configuration
 - **`src/routes/`**: File-based routing with TanStack Router:
   - `__root.tsx`: Root layout with providers and global components
@@ -145,21 +151,23 @@ docker-compose logs -f                               # View logs
   - `tanstack-query/`: TanStack Query configuration and providers
 
 ### Key Integration Points
-- **OpenAPI Code Generation**: 
+
+- **OpenAPI Code Generation**:
   1. Backend FastAPI automatically generates OpenAPI schema
   2. `./scripts/generate-client.sh` extracts schema and generates TypeScript client
   3. Frontend uses generated client with TanStack Query for type-safe API calls
-- **Authentication Flow**: 
+- **Authentication Flow**:
   1. JWT tokens stored in localStorage
   2. Axios interceptors automatically add Bearer token to requests
   3. Token refresh and logout handled in `use-auth.tsx` hook
   4. Protected routes use authentication guards
-- **Environment Configuration**: 
+- **Environment Configuration**:
   - Backend reads from `.env` file via Pydantic settings
   - Frontend uses Vite environment variables (`VITE_API_URL`)
   - Docker Compose passes environment variables to containers
 
 ### Database Management
+
 - **SQLModel**: Type-safe database models with Pydantic validation
 - **Async Operations**: Full async/await support with asyncpg driver
 - **Migrations**: Alembic handles schema versioning and migrations
@@ -167,6 +175,7 @@ docker-compose logs -f                               # View logs
 - **Database Initialization**: Automatic table creation via FastAPI lifespan events
 
 ### Development Workflow
+
 1. Make backend changes (models, routes, business logic)
 2. Run `./scripts/generate-client.sh` to update frontend API client
 3. Update frontend components to use new API endpoints
@@ -174,10 +183,12 @@ docker-compose logs -f                               # View logs
 5. Apply migrations with `uv run alembic upgrade head`
 
 ### Package Management
+
 - **Frontend**: Uses `pnpm` with workspace configuration for efficient package management
 - **Backend**: Uses `uv` for fast Python package management and virtual environments
 
 ### Docker Deployment
+
 - **Multi-stage Builds**: Separate development and production stages in Dockerfiles
 - **Development Configuration** (`docker-compose.dev.yml`):
   - Hot reload with volume mounts for source code
@@ -193,6 +204,7 @@ docker-compose logs -f                               # View logs
   - `frontend`: React (dev server) or Nginx (production)
 
 ### Key Files to Understand
+
 - **`backend/src/routes/models.py`**: Shared models and schemas
 - **`backend/src/routes/{users,items}/models.py`**: Feature-specific SQLModel definitions
 - **`frontend/src/routes/__root.tsx`**: Root layout with navigation and global providers  
@@ -205,12 +217,15 @@ docker-compose logs -f                               # View logs
 The application requires environment variables in a `.env` file at the project root.
 
 ### Development
+
 Run `./scripts/dev-deploy.sh` to start development environment. The script will check for `.env` file and provide guidance if missing.
 
 ### Production
+
 Copy `.env.example` to `.env` and update the values:
 
 **Required Variables:**
+
 - `PROJECT_NAME`: Application name (default: "Moss Stack")
 - `SECRET_KEY`: Strong secret key for JWT tokens (change from "changethis")
 - `POSTGRES_SERVER`, `POSTGRES_USER`, `POSTGRES_PASSWORD`, `POSTGRES_DB`: Database connection
@@ -218,15 +233,58 @@ Copy `.env.example` to `.env` and update the values:
 - `BACKEND_CORS_ORIGINS`: Comma-separated list of allowed origins
 
 **Optional Variables:**
+
 - SMTP configuration for email functionality
 - `SENTRY_DSN` for error monitoring
 - `ENVIRONMENT`: "local", "staging", or "production"
 
 ### CRUD Implementation Example
-The project includes a complete CRUD implementation for "Items" that demonstrates:
+
+The project includes a complete CRUD implementation for "Items" that demonstrates best practices:
+
+#### Server-Side Pagination Pattern
+
+The items API implements efficient server-side pagination:
+
+- **Backend**: Uses FastAPI Query parameters with validation (`page: int = Query(default=1, ge=1)`, `size: int = Query(default=10, ge=1, le=100)`)
+- **Response Format**: Flat structure with pagination metadata at root level:
+
+  ```json
+  {
+    "data": [...],
+    "page": 1,
+    "size": 10,
+    "total": 100,
+    "pages": 10
+  }
+  ```
+
+- **Database**: Efficient SQL with separate count and data queries using `offset()` and `limit()`
+- **Authorization**: Role-based filtering (superusers see all, users see only their own items)
+
+#### Frontend Data Management
+
+- **URL State**: TanStack Router search params preserve pagination state (`?page=2&size=20`)
+- **Type-Safe Navigation**: Zod schema validation for search parameters
+- **Cache Optimization**: `placeholderData: (prevData) => prevData` for smooth transitions
+- **Manual Pagination**: `@tanstack/react-table` with `manualPagination: true` for server-side control
+
+#### Cache Invalidation Strategy
+
+Consistent pattern for keeping data fresh after mutations:
+
+```typescript
+// After create/update/delete operations
+queryClient.invalidateQueries({ 
+  queryKey: itemsReadItemsQueryKey() 
+})
+```
+
+#### Complete CRUD Features
+
 - **Create**: Dialog forms with validation using react-hook-form + Zod
-- **Read**: Data tables with pagination, sorting, and filtering
-- **Update**: Edit dialogs with pre-populated data
+- **Read**: Data tables with server-side pagination, sorting, and filtering
+- **Update**: Edit dialogs with pre-populated data and optimistic updates
 - **Delete**: Confirmation dialogs with proper error handling
-- **State Management**: TanStack Query for caching and optimistic updates
+- **State Management**: TanStack Query for caching and background refetching
 - **Error Handling**: Consistent error patterns with toast notifications
