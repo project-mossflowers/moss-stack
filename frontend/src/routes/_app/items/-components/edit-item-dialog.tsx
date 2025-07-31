@@ -25,39 +25,40 @@ import {
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
-import { LoaderIcon, PlusIcon } from "lucide-react"
+import { LoaderIcon, PencilIcon } from "lucide-react"
 
-import { itemsCreateItemMutation, itemsReadItemsQueryKey } from "@/api/@tanstack/react-query.gen"
-import type { ItemCreate } from "@/api/types.gen"
+import { itemsUpdateItemMutation, itemsReadItemsQueryKey } from "@/api/@tanstack/react-query.gen"
+import type { ItemPublic, ItemUpdate } from "@/api/types.gen"
 
-const createItemSchema = z.object({
+const updateItemSchema = z.object({
   title: z.string().min(1, "Title is required").max(255, "Title too long"),
   description: z.string().max(255, "Description too long").optional(),
 })
 
-type CreateItemForm = z.infer<typeof createItemSchema>
+type UpdateItemForm = z.infer<typeof updateItemSchema>
 
-interface CreateItemDialogProps {
+interface EditItemDialogProps {
+  item: ItemPublic
   onSuccess?: () => void
 }
 
-export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
+export function EditItemDialog({ item, onSuccess }: EditItemDialogProps) {
   const [open, setOpen] = React.useState(false)
   const queryClient = useQueryClient()
 
-  const form = useForm<CreateItemForm>({
-    resolver: zodResolver(createItemSchema),
+  const form = useForm<UpdateItemForm>({
+    resolver: zodResolver(updateItemSchema),
     defaultValues: {
-      title: "",
-      description: "",
+      title: item.title,
+      description: item.description || "",
     },
   })
 
-  const createMutation = useMutation({
-    ...itemsCreateItemMutation(),
+  const updateMutation = useMutation({
+    ...itemsUpdateItemMutation(),
     onSuccess: () => {
-      toast.success("Item created successfully")
-      // 使用正确的查询键来失效缓存，确保表格数据刷新
+      toast.success("Item updated successfully")
+      // 使用正确的查询键来失效缓存
       queryClient.invalidateQueries({ 
         queryKey: itemsReadItemsQueryKey() 
       })
@@ -66,43 +67,44 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
       onSuccess?.()
     },
     onError: (error: any) => {
-      toast.error(`Failed to create item: ${error.message || "Unknown error"}`)
+      toast.error(`Failed to update item: ${error.message || "Unknown error"}`)
     },
   })
 
-  const onSubmit = (values: CreateItemForm) => {
-    const createData: ItemCreate = {
+  const onSubmit = (values: UpdateItemForm) => {
+    const updateData: ItemUpdate = {
       title: values.title,
       description: values.description || null,
     }
     
-    createMutation.mutate({
-      body: createData,
+    updateMutation.mutate({
+      path: { id: item.id },
+      body: updateData,
     })
   }
 
   React.useEffect(() => {
     if (open) {
       form.reset({
-        title: "",
-        description: "",
+        title: item.title,
+        description: item.description || "",
       })
     }
-  }, [open, form])
+  }, [open, item, form])
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusIcon className="mr-2 h-4 w-4" />
-          Create Item
+        <Button variant="ghost" size="sm" className="h-8 px-2">
+          <PencilIcon className="h-4 w-4" />
+          <span className="sr-only">Edit item</span>
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create Item</DialogTitle>
+          <DialogTitle>Edit Item</DialogTitle>
           <DialogDescription>
-            Add a new item to your collection. Click save when you're done.
+            Make changes to your item here. Click save when you're done.
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -142,18 +144,18 @@ export function CreateItemDialog({ onSuccess }: CreateItemDialogProps) {
                 type="button"
                 variant="outline"
                 onClick={() => setOpen(false)}
-                disabled={createMutation.isPending}
+                disabled={updateMutation.isPending}
               >
                 Cancel
               </Button>
-              <Button type="submit" disabled={createMutation.isPending}>
-                {createMutation.isPending ? (
+              <Button type="submit" disabled={updateMutation.isPending}>
+                {updateMutation.isPending ? (
                   <>
                     <LoaderIcon className="mr-2 h-4 w-4 animate-spin" />
-                    Creating...
+                    Saving...
                   </>
                 ) : (
-                  "Create Item"
+                  "Save Changes"
                 )}
               </Button>
             </DialogFooter>

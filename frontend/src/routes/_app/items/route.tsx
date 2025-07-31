@@ -1,4 +1,4 @@
-import { createFileRoute, useNavigate } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { PageTitle } from '@/components/page-title'
 
 import { z } from 'zod'
@@ -25,7 +25,6 @@ export const Route = createFileRoute('/_app/items')({
 })
 
 function RouteComponent() {
-  const navigate = useNavigate({ from: Route.fullPath })
   const { page } = Route.useSearch()
 
   const result = useQuery({
