@@ -1,7 +1,20 @@
 import uuid
+from datetime import datetime
 from typing import Optional
+from enum import Enum
 
 from sqlmodel import Field, Relationship, SQLModel
+
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
+
+
+class ItemSortField(str, Enum):
+    title = "title"
+    created_at = "created_at"
+    updated_at = "updated_at"
 
 
 # Shared properties
@@ -16,6 +29,8 @@ class Item(ItemBase, table=True):
     owner_id: uuid.UUID = Field(
         foreign_key="user.id", nullable=False, ondelete="CASCADE"
     )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, sa_column_kwargs={"onupdate": datetime.utcnow})
     owner: Optional["User"] = Relationship(back_populates="items")  # type: ignore  # noqa: F821
 
 
@@ -33,6 +48,8 @@ class ItemUpdate(ItemBase):
 class ItemPublic(ItemBase):
     id: uuid.UUID
     owner_id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
 
 
 class ItemsPublic(SQLModel):

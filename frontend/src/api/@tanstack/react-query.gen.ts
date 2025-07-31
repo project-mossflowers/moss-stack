@@ -716,11 +716,14 @@ export const itemsReadItemsQueryKey = (options?: Options<ItemsReadItemsData>) =>
 
 /**
  * Read Items
- * Retrieve items with pagination.
+ * Retrieve items with pagination, filtering, and sorting.
  *
  * Args:
  * page: Page number (1-based)
  * size: Number of items per page (1-100)
+ * search: Search term for title and description
+ * sort_by: Field to sort by (title, created_at, updated_at)
+ * sort_order: Sort order (asc/desc)
  *
  * Returns:
  * Paginated list of items with metadata
@@ -785,11 +788,14 @@ export const itemsReadItemsInfiniteQueryKey = (
 
 /**
  * Read Items
- * Retrieve items with pagination.
+ * Retrieve items with pagination, filtering, and sorting.
  *
  * Args:
  * page: Page number (1-based)
  * size: Number of items per page (1-100)
+ * search: Search term for title and description
+ * sort_by: Field to sort by (title, created_at, updated_at)
+ * sort_order: Sort order (asc/desc)
  *
  * Returns:
  * Paginated list of items with metadata

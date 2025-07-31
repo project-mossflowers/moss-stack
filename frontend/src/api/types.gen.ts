@@ -74,7 +74,29 @@ export type ItemPublic = {
    * Owner Id
    */
   owner_id: string
+  /**
+   * Created At
+   */
+  created_at: Date
+  /**
+   * Updated At
+   */
+  updated_at: Date
 }
+
+/**
+ * ItemSortField
+ */
+export const ItemSortField = {
+  TITLE: 'title',
+  CREATED_AT: 'created_at',
+  UPDATED_AT: 'updated_at',
+} as const
+
+/**
+ * ItemSortField
+ */
+export type ItemSortField = (typeof ItemSortField)[keyof typeof ItemSortField]
 
 /**
  * ItemUpdate
@@ -161,6 +183,19 @@ export type PrivateUserCreate = {
    */
   is_verified?: boolean
 }
+
+/**
+ * SortOrder
+ */
+export const SortOrder = {
+  ASC: 'asc',
+  DESC: 'desc',
+} as const
+
+/**
+ * SortOrder
+ */
+export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
 
 /**
  * Token
@@ -755,6 +790,19 @@ export type ItemsReadItemsData = {
      * Number of items per page
      */
     size?: number
+    /**
+     * Search
+     * Search in title and description
+     */
+    search?: string | null
+    /**
+     * Field to sort by
+     */
+    sort_by?: ItemSortField
+    /**
+     * Sort order (asc/desc)
+     */
+    sort_order?: SortOrder
   }
   url: '/api/v1/items/'
 }

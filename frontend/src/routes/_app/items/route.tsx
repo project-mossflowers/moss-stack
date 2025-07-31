@@ -6,15 +6,28 @@ import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
 import { useQuery } from '@tanstack/react-query'
 import { CreateItemDialog } from './-components/create-item-dialog'
 import { DataTable } from './-components/items-table'
+import { ItemSortField, SortOrder } from '@/api/types.gen'
 
 const itemsSearchSchema = z.object({
   page: z.number().catch(1),
   size: z.number().catch(10),
+  search: z.string().optional(),
+  sort_by: z.enum(ItemSortField).catch(ItemSortField.CREATED_AT),
+  sort_order: z.enum(SortOrder).catch(SortOrder.DESC),
 })
 
-function getItemsQueryOptions({ page, size }: { page: number; size: number }) {
+function getItemsQueryOptions(params: z.infer<typeof itemsSearchSchema>) {
+  const query: any = {
+    page: params.page,
+    size: params.size,
+  }
+  
+  if (params.search) query.search = params.search
+  if (params.sort_by) query.sort_by = params.sort_by
+  if (params.sort_order) query.sort_order = params.sort_order
+
   return itemsReadItemsOptions({
-    query: { page, size },
+    query,
   })
 }
 
@@ -24,10 +37,10 @@ export const Route = createFileRoute('/_app/items')({
 })
 
 function RouteComponent() {
-  const { page, size } = Route.useSearch()
+  const searchParams = Route.useSearch()
 
   const result = useQuery({
-    ...getItemsQueryOptions({ page, size }),
+    ...getItemsQueryOptions(searchParams),
     placeholderData: (prevData) => prevData,
   })
 
@@ -62,6 +75,7 @@ function RouteComponent() {
               total: result.data?.total || 0,
               pages: result.data?.pages || 1,
             }}
+            searchParams={searchParams}
           />
         )}
       </div>

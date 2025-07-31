@@ -127,10 +127,26 @@ export const ItemPublicSchema = {
       format: 'uuid',
       title: 'Owner Id',
     },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
   },
   type: 'object',
-  required: ['title', 'id', 'owner_id'],
+  required: ['title', 'id', 'owner_id', 'created_at', 'updated_at'],
   title: 'ItemPublic',
+} as const
+
+export const ItemSortFieldSchema = {
+  type: 'string',
+  enum: ['title', 'created_at', 'updated_at'],
+  title: 'ItemSortField',
 } as const
 
 export const ItemUpdateSchema = {
@@ -249,6 +265,12 @@ export const PrivateUserCreateSchema = {
   type: 'object',
   required: ['email', 'password', 'full_name'],
   title: 'PrivateUserCreate',
+} as const
+
+export const SortOrderSchema = {
+  type: 'string',
+  enum: ['asc', 'desc'],
+  title: 'SortOrder',
 } as const
 
 export const TokenSchema = {

@@ -264,10 +264,22 @@ The items API implements efficient server-side pagination:
 
 #### Frontend Data Management
 
-- **URL State**: TanStack Router search params preserve pagination state (`?page=2&size=20`)
-- **Type-Safe Navigation**: Zod schema validation for search parameters
+- **URL State**: TanStack Router search params preserve all filtering, sorting, and pagination state (`?page=2&size=20&search=test&sort_by=created_at&sort_order=desc`)
+- **Type-Safe Navigation**: Zod schema validation for all search parameters including enums
 - **Cache Optimization**: `placeholderData: (prevData) => prevData` for smooth transitions
-- **Manual Pagination**: `@tanstack/react-table` with `manualPagination: true` for server-side control
+- **Manual Pagination**: `@tanstack/react-table` with `manualPagination: true` and `manualSorting: true`
+- **Interactive UI**: Clickable column headers for sorting, search input with real-time feedback
+
+#### Advanced Filtering and Sorting
+
+The items API supports comprehensive server-side filtering and sorting:
+
+- **Search**: Full-text search across title and description fields using `icontains()`
+- **Sorting**: Multi-field sorting with type-safe enums
+  - Fields: `title`, `created_at`, `updated_at`
+  - Orders: `asc`, `desc`
+- **Query Building**: Dynamic filter construction with SQLAlchemy expressions
+- **Performance**: Optimized queries with proper indexing on timestamp fields
 
 #### Cache Invalidation Strategy
 

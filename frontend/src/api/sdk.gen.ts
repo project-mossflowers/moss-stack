@@ -7,6 +7,12 @@ import {
   urlSearchParamsBodySerializer
 } from './client'
 import { client as _heyApiClient } from './client.gen'
+import {
+  itemsCreateItemResponseTransformer,
+  itemsReadItemResponseTransformer,
+  itemsReadItemsResponseTransformer,
+  itemsUpdateItemResponseTransformer,
+} from './transformers.gen'
 import type {Client, Options as ClientOptions, TDataShape} from './client';
 import type {
   AuthLoginAccessTokenData,
@@ -459,11 +465,14 @@ export const usersUpdateUser = <ThrowOnError extends boolean = false>(
 
 /**
  * Read Items
- * Retrieve items with pagination.
+ * Retrieve items with pagination, filtering, and sorting.
  *
  * Args:
  * page: Page number (1-based)
  * size: Number of items per page (1-100)
+ * search: Search term for title and description
+ * sort_by: Field to sort by (title, created_at, updated_at)
+ * sort_order: Sort order (asc/desc)
  *
  * Returns:
  * Paginated list of items with metadata
@@ -476,6 +485,7 @@ export const itemsReadItems = <ThrowOnError extends boolean = false>(
     ItemsReadItemsErrors,
     ThrowOnError
   >({
+    responseTransformer: itemsReadItemsResponseTransformer,
     responseType: 'json',
     security: [
       {
@@ -500,6 +510,7 @@ export const itemsCreateItem = <ThrowOnError extends boolean = false>(
     ItemsCreateItemErrors,
     ThrowOnError
   >({
+    responseTransformer: itemsCreateItemResponseTransformer,
     responseType: 'json',
     security: [
       {
@@ -552,6 +563,7 @@ export const itemsReadItem = <ThrowOnError extends boolean = false>(
     ItemsReadItemErrors,
     ThrowOnError
   >({
+    responseTransformer: itemsReadItemResponseTransformer,
     responseType: 'json',
     security: [
       {
@@ -576,6 +588,7 @@ export const itemsUpdateItem = <ThrowOnError extends boolean = false>(
     ItemsUpdateItemErrors,
     ThrowOnError
   >({
+    responseTransformer: itemsUpdateItemResponseTransformer,
     responseType: 'json',
     security: [
       {

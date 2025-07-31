@@ -1,18 +1,14 @@
 import * as React from "react"
 import {
   type ColumnDef,
-  type ColumnFiltersState,
   type SortingState,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
-  getFacetedRowModel,
-  getFacetedUniqueValues,
-  getFilteredRowModel,
-  getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
 import {
+  ArrowUpDownIcon,
   ChevronDownIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
@@ -20,6 +16,7 @@ import {
   ChevronsRightIcon,
   ColumnsIcon,
   MoreVerticalIcon,
+  SearchIcon,
 } from "lucide-react"
 import { useNavigate } from "@tanstack/react-router"
 
@@ -32,6 +29,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   Select,
@@ -50,6 +48,7 @@ import {
 } from "@/components/ui/table"
 
 import type { ItemPublic } from "@/api/types.gen"
+import { ItemSortField, SortOrder } from "@/api/types.gen"
 import { EditItemDialog } from "./edit-item-dialog"
 import { DeleteItemDialog } from "./delete-item-dialog"
 
@@ -58,6 +57,14 @@ interface PaginationInfo {
   size: number
   total: number
   pages: number
+}
+
+interface SearchParams {
+  page: number
+  size: number
+  search?: string
+  sort_by: ItemSortField
+  sort_order: SortOrder
 }
 
 const columns: ColumnDef<ItemPublic>[] = [
@@ -90,7 +97,16 @@ const columns: ColumnDef<ItemPublic>[] = [
   },
   {
     accessorKey: "title",
-    header: "Title",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-8 px-2"
+      >
+        Title
+        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => (
       <div className="font-medium">
         {row.original.title}
@@ -108,11 +124,38 @@ const columns: ColumnDef<ItemPublic>[] = [
     ),
   },
   {
-    accessorKey: "owner_id",
-    header: "Owner ID",
+    accessorKey: "created_at",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-8 px-2"
+      >
+        Created
+        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground font-mono">
-        {row.original.owner_id.slice(0, 8)}...
+      <div className="text-sm text-muted-foreground">
+        {new Date(row.original.created_at).toLocaleDateString()}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "updated_at",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        className="h-8 px-2"
+      >
+        Updated
+        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">
+        {new Date(row.original.updated_at).toLocaleDateString()}
       </div>
     ),
   },
@@ -148,18 +191,25 @@ const columns: ColumnDef<ItemPublic>[] = [
 export function DataTable({
   data,
   pagination,
+  searchParams,
 }: {
   data: ItemPublic[]
   pagination?: PaginationInfo
+  searchParams: SearchParams
 }) {
   const navigate = useNavigate()
   const [rowSelection, setRowSelection] = React.useState({})
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({})
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  )
-  const [sorting, setSorting] = React.useState<SortingState>([])
+  const [searchInput, setSearchInput] = React.useState(searchParams.search || "")
+
+  // Initialize sorting state based on URL params
+  const [sorting, setSorting] = React.useState<SortingState>([
+    {
+      id: searchParams.sort_by,
+      desc: searchParams.sort_order === SortOrder.DESC,
+    },
+  ])
 
   const table = useReactTable({
     data,
@@ -168,22 +218,35 @@ export function DataTable({
       sorting,
       columnVisibility,
       rowSelection,
-      columnFilters,
     },
     getRowId: (row) => row.id.toString(),
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
-    onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     getCoreRowModel: getCoreRowModel(),
-    getFilteredRowModel: getFilteredRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    getFacetedRowModel: getFacetedRowModel(),
-    getFacetedUniqueValues: getFacetedUniqueValues(),
     manualPagination: true,
+    manualSorting: true,
     pageCount: pagination?.pages || 1,
   })
+
+  // Handle server-side sorting
+  React.useEffect(() => {
+    if (sorting.length > 0) {
+      const sortField = sorting[0].id as ItemSortField
+      const sortOrder = sorting[0].desc ? SortOrder.DESC : SortOrder.ASC
+      
+      navigate({
+        to: '/items',
+        search: (prev: any) => ({ 
+          ...prev, 
+          sort_by: sortField, 
+          sort_order: sortOrder,
+          page: 1 // Reset to first page when sorting changes
+        }),
+      })
+    }
+  }, [sorting, navigate])
 
   const handlePageChange = (newPage: number) => {
     navigate({
@@ -196,6 +259,35 @@ export function DataTable({
     navigate({
       to: '/items',
       search: (prev: any) => ({ ...prev, size: newSize, page: 1 }),
+    })
+  }
+
+  const handleSearch = () => {
+    navigate({
+      to: '/items',
+      search: (prev: any) => ({ 
+        ...prev, 
+        search: searchInput || undefined, 
+        page: 1 // Reset to first page when searching
+      }),
+    })
+  }
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') {
+      handleSearch()
+    }
+  }
+
+  const clearSearch = () => {
+    setSearchInput("")
+    navigate({
+      to: '/items',
+      search: (prev: any) => ({ 
+        ...prev, 
+        search: undefined, 
+        page: 1 
+      }),
     })
   }
 
@@ -235,7 +327,7 @@ export function DataTable({
                         column.toggleVisibility(!!value)
                       }
                     >
-                      {column.id}
+                      {column.id.replace('_', ' ')}
                     </DropdownMenuCheckboxItem>
                   )
                 })}
@@ -243,6 +335,31 @@ export function DataTable({
           </DropdownMenu>
         </div>
       </div>
+      
+      {/* Search Bar */}
+      <div className="px-4 lg:px-6">
+        <div className="flex items-center gap-2">
+          <div className="relative flex-1 max-w-sm">
+            <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+            <Input
+              placeholder="Search items..."
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              onKeyDown={handleSearchKeyDown}
+              className="pl-10"
+            />
+          </div>
+          <Button onClick={handleSearch} size="sm">
+            Search
+          </Button>
+          {searchParams.search && (
+            <Button onClick={clearSearch} variant="outline" size="sm">
+              Clear
+            </Button>
+          )}
+        </div>
+      </div>
+
       <div className="overflow-hidden rounded-lg border mx-4 lg:mx-6">
         <Table>
           <TableHeader className="bg-muted">
