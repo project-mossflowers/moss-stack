@@ -33,18 +33,18 @@ export function SiteHeader() {
           const isLast = index === pathSegments.length - 1
           const to = '/' + pathSegments.slice(0, index + 1).join('/')
           return (
-            <BreadcrumbItem key={to}>
-              {isLast ? (
-                <BreadcrumbPage>{toTitle(item)}</BreadcrumbPage>
-              ) : (
-                <>
+            <React.Fragment key={to}>
+              <BreadcrumbItem>
+                {isLast ? (
+                  <BreadcrumbPage>{toTitle(item)}</BreadcrumbPage>
+                ) : (
                   <BreadcrumbLink asChild>
                     <Link to={to}>{toTitle(item)}</Link>
                   </BreadcrumbLink>
-                  <BreadcrumbSeparator />
-                </>
-              )}
-            </BreadcrumbItem>
+                )}
+              </BreadcrumbItem>
+              {!isLast && <BreadcrumbSeparator />}
+            </React.Fragment>
           )
         })}
       </BreadcrumbList>

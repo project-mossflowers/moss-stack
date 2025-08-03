@@ -7,6 +7,7 @@ import { DataTable } from './-components/items-table'
 import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
 import { ItemSortField, SortOrder } from '@/api/types.gen'
+import { zodValidator } from '@tanstack/zod-adapter'
 
 const itemsSearchSchema = z.object({
   page: z.number().catch(1),
@@ -33,7 +34,7 @@ function getItemsQueryOptions(params: z.infer<typeof itemsSearchSchema>) {
 
 export const Route = createFileRoute('/_app/items')({
   component: RouteComponent,
-  validateSearch: (search) => itemsSearchSchema.parse(search),
+  validateSearch: zodValidator(itemsSearchSchema),
 })
 
 function RouteComponent() {

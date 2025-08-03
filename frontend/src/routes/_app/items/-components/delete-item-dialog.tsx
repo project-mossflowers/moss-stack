@@ -1,5 +1,6 @@
 import * as React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRouter } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 import { LoaderIcon, TrashIcon } from 'lucide-react'
@@ -20,6 +21,7 @@ import { Button } from '@/components/ui/button'
 import {
   itemsDeleteItemMutation,
   itemsReadItemsQueryKey,
+  itemsReadItemQueryKey,
 } from '@/api/@tanstack/react-query.gen'
 
 interface DeleteItemDialogProps {
@@ -28,6 +30,8 @@ interface DeleteItemDialogProps {
   trigger?: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  ButtonProps?: React.ComponentProps<typeof Button>
+  shouldNavigateOnDelete?: boolean // New prop to control navigation behavior
 }
 
 export function DeleteItemDialog({
@@ -36,21 +40,41 @@ export function DeleteItemDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
+  ButtonProps,
+  shouldNavigateOnDelete = false,
 }: DeleteItemDialogProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
   const setOpen = onOpenChange || setInternalOpen
   const queryClient = useQueryClient()
+  const router = useRouter()
 
   const deleteMutation = useMutation({
     ...itemsDeleteItemMutation(),
     onSuccess: () => {
       toast.success('Item deleted successfully')
-      // 使用正确的查询键来失效缓存
+      // Invalidate both items list and individual item caches
       queryClient.invalidateQueries({
         queryKey: itemsReadItemsQueryKey(),
       })
+      queryClient.invalidateQueries({
+        queryKey: itemsReadItemQueryKey({ path: { id: item.id } }),
+      })
       setOpen(false)
+      
+      // Navigate to items list if this is from a detail page
+      if (shouldNavigateOnDelete) {
+        router.navigate({
+          to: '/items',
+          search: {
+            page: 1,
+            size: 10,
+            sort_by: 'created_at',
+            sort_order: 'desc',
+          },
+        })
+      }
+      
       onSuccess?.()
     },
     onError: (error: any) => {
@@ -70,9 +94,9 @@ export function DeleteItemDialog({
       {!trigger && controlledOpen === undefined && (
         <AlertDialogTrigger asChild>
           <Button
-            variant="ghost"
             size="sm"
             className="h-8 px-2 text-destructive hover:text-destructive"
+            {...ButtonProps}
           >
             <TrashIcon className="h-4 w-4" />
             <span className="sr-only">Delete item</span>

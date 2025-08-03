@@ -30,6 +30,7 @@ import { Textarea } from '@/components/ui/textarea'
 
 import {
   itemsReadItemsQueryKey,
+  itemsReadItemQueryKey,
   itemsUpdateItemMutation,
 } from '@/api/@tanstack/react-query.gen'
 
@@ -46,6 +47,7 @@ interface EditItemDialogProps {
   trigger?: React.ReactNode
   open?: boolean
   onOpenChange?: (open: boolean) => void
+  ButtonProps?: React.ComponentProps<typeof Button>
 }
 
 export function EditItemDialog({
@@ -54,6 +56,7 @@ export function EditItemDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
+  ButtonProps
 }: EditItemDialogProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen
@@ -72,9 +75,12 @@ export function EditItemDialog({
     ...itemsUpdateItemMutation(),
     onSuccess: () => {
       toast.success('Item updated successfully')
-      // 使用正确的查询键来失效缓存
+      // Invalidate both items list and individual item caches
       queryClient.invalidateQueries({
         queryKey: itemsReadItemsQueryKey(),
+      })
+      queryClient.invalidateQueries({
+        queryKey: itemsReadItemQueryKey({ path: { id: item.id } }),
       })
       setOpen(false)
       form.reset()
@@ -111,7 +117,7 @@ export function EditItemDialog({
       {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       {!trigger && controlledOpen === undefined && (
         <DialogTrigger asChild>
-          <Button variant="ghost" size="sm" className="h-8 px-2">
+          <Button size="sm" className="h-8 px-2" {...ButtonProps}>
             <PencilIcon className="h-4 w-4" />
             <span className="sr-only">Edit item</span>
           </Button>

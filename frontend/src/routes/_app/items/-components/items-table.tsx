@@ -15,7 +15,7 @@ import {
   MoreVerticalIcon,
   SearchIcon,
 } from 'lucide-react'
-import { useNavigate } from '@tanstack/react-router'
+import { Link, useNavigate } from '@tanstack/react-router'
 import { EditItemDialog } from './edit-item-dialog'
 import { DeleteItemDialog } from './delete-item-dialog'
 import type {
@@ -167,15 +167,14 @@ const columns: Array<ColumnDef<ItemPublic>> = [
 
       return (
         <div className="flex items-center gap-1">
+          <Link to='/items/$itemId' params={{ itemId: row.original.id }} search={{page: 1, size: 10, sort_by: 'created_at', sort_order: 'desc'}}>
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => {
-              // View details functionality
-            }}
           >
             View Details
           </Button>
+          </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
