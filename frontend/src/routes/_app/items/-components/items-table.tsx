@@ -167,7 +167,7 @@ const columns: Array<ColumnDef<ItemPublic>> = [
 
       return (
         <div className="flex items-center gap-1">
-          <Link to='/items/$itemId' params={{ itemId: row.original.id }} search={{page: 1, size: 10, sort_by: 'created_at', sort_order: 'desc'}}>
+          <Link to='/items/$itemId' params={{ itemId: row.original.id }}>
           <Button
             variant="ghost"
             size="sm"

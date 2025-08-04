@@ -1,6 +1,6 @@
 import { createFileRoute, Link, type ErrorComponentProps } from '@tanstack/react-router'
-import { useQuery, useSuspenseQuery } from '@tanstack/react-query'
-import { ArrowLeft, Calendar, Clock, Edit2, User } from 'lucide-react'
+import { useSuspenseQuery } from '@tanstack/react-query'
+import { ArrowLeft, Calendar, Clock, User } from 'lucide-react'
 import { itemsReadItemOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
 import { Button } from '@/components/ui/button'
