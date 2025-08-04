@@ -1,16 +1,21 @@
-import { createFileRoute, Link, type ErrorComponentProps } from '@tanstack/react-router'
+import {
+  
+  Link,
+  createFileRoute
+} from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowLeft, Calendar, Clock, User } from 'lucide-react'
+import { EditItemDialog } from '../../items/-components/edit-item-dialog'
+import { DeleteItemDialog } from '../../items/-components/delete-item-dialog'
+import type {ErrorComponentProps} from '@tanstack/react-router';
 import { itemsReadItemOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { EditItemDialog } from '../../items/-components/edit-item-dialog'
-import { DeleteItemDialog } from '../../items/-components/delete-item-dialog'
 
 export const Route = createFileRoute('/_app/items_/$itemId')({
-  loader: ({  context: { queryClient },params: { itemId } }) => {
+  loader: ({ context: { queryClient }, params: { itemId } }) => {
     return queryClient.ensureQueryData(
       itemsReadItemOptions({
         path: { id: itemId },
@@ -21,43 +26,40 @@ export const Route = createFileRoute('/_app/items_/$itemId')({
   component: RouteComponent,
 })
 
-function ErrorComponent({ error }: ErrorComponentProps ) {
-   return (
-      <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
-        <div className="mx-auto w-full rounded-xl px-4 lg:px-6">
-          <div className="flex items-center gap-4 mb-6">
-            <Link
-              to="/items"
-              search={{
-                page: 1,
-                size: 10,
-                sort_by: 'created_at',
-                sort_order: 'desc',
-              }}
-            >
-              <Button variant="ghost" size="sm">
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Back to Items
-              </Button>
-            </Link>
-          </div>
-          <div className="flex items-center justify-center py-12">
-            <div className="text-destructive">
-              Error loading item: {error?.message || 'Item not found'}
-            </div>
+function ErrorComponent({ error }: ErrorComponentProps) {
+  return (
+    <div className="flex flex-col gap-4 py-4 md:gap-6 md:py-6">
+      <div className="mx-auto w-full rounded-xl px-4 lg:px-6">
+        <div className="flex items-center gap-4 mb-6">
+          <Link
+            to="/items"
+            search={{
+              page: 1,
+              size: 10,
+              sort_by: 'created_at',
+              sort_order: 'desc',
+            }}
+          >
+            <Button variant="ghost" size="sm">
+              <ArrowLeft className="mr-2 h-4 w-4" />
+              Back to Items
+            </Button>
+          </Link>
+        </div>
+        <div className="flex items-center justify-center py-12">
+          <div className="text-destructive">
+            Error loading item: {error?.message || 'Item not found'}
           </div>
         </div>
       </div>
-    )
+    </div>
+  )
 }
 
 function RouteComponent() {
   const { itemId } = Route.useParams()
 
-  const {
-    data: item,
-    isLoading,
-  } = useSuspenseQuery({
+  const { data: item, isLoading } = useSuspenseQuery({
     ...itemsReadItemOptions({
       path: { id: itemId },
     }),
@@ -141,7 +143,11 @@ function RouteComponent() {
           </div>
           <div className="flex items-center gap-2">
             <EditItemDialog item={item} ButtonProps={{ variant: 'outline' }} />
-            <DeleteItemDialog item={item} ButtonProps={{ variant: 'outline' }} shouldNavigateOnDelete={true} />
+            <DeleteItemDialog
+              item={item}
+              ButtonProps={{ variant: 'outline' }}
+              shouldNavigateOnDelete={true}
+            />
           </div>
         </div>
 

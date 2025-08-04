@@ -29,8 +29,8 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 
 import {
-  itemsReadItemsQueryKey,
   itemsReadItemQueryKey,
+  itemsReadItemsQueryKey,
   itemsUpdateItemMutation,
 } from '@/api/@tanstack/react-query.gen'
 
@@ -56,7 +56,7 @@ export function EditItemDialog({
   trigger,
   open: controlledOpen,
   onOpenChange,
-  ButtonProps
+  ButtonProps,
 }: EditItemDialogProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const open = controlledOpen !== undefined ? controlledOpen : internalOpen

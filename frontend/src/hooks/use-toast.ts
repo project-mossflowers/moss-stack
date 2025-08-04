@@ -188,4 +188,41 @@ function useToast() {
   }
 }
 
+// Convenience methods for different toast variants
+toast.success = (message: string, options?: Omit<Toast, 'variant'>) => {
+  return toast({
+    variant: 'success',
+    title: 'Success',
+    description: message,
+    ...options,
+  })
+}
+
+toast.error = (message: string, options?: Omit<Toast, 'variant'>) => {
+  return toast({
+    variant: 'destructive',
+    title: 'Error',
+    description: message,
+    ...options,
+  })
+}
+
+toast.warning = (message: string, options?: Omit<Toast, 'variant'>) => {
+  return toast({
+    variant: 'warning',
+    title: 'Warning',
+    description: message,
+    ...options,
+  })
+}
+
+toast.info = (message: string, options?: Omit<Toast, 'variant'>) => {
+  return toast({
+    variant: 'info',
+    title: 'Info',
+    description: message,
+    ...options,
+  })
+}
+
 export { useToast, toast }

@@ -2,12 +2,12 @@ import { createFileRoute } from '@tanstack/react-router'
 
 import { z } from 'zod'
 import { useQuery } from '@tanstack/react-query'
+import { zodValidator } from '@tanstack/zod-adapter'
 import { CreateItemDialog } from './-components/create-item-dialog'
 import { DataTable } from './-components/items-table'
 import { itemsReadItemsOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
 import { ItemSortField, SortOrder } from '@/api/types.gen'
-import { zodValidator } from '@tanstack/zod-adapter'
 
 const itemsSearchSchema = z.object({
   page: z.number().catch(1),

@@ -12,10 +12,10 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AppSettingsRouteImport } from './routes/_app/settings'
 import { Route as AppAdminRouteImport } from './routes/_app/admin'
 import { Route as AuthSignupRouteRouteImport } from './routes/_auth/signup/route'
 import { Route as AuthLoginRouteRouteImport } from './routes/_auth/login/route'
+import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppItemsRouteRouteImport } from './routes/_app/items/route'
 import { Route as AppDashboardIndexRouteImport } from './routes/_app/dashboard/index'
 import { Route as AppDemoTanstackQueryRouteImport } from './routes/_app/demo.tanstack-query'
@@ -34,11 +34,6 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRouteRoute,
 } as any)
-const AppSettingsRoute = AppSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppRouteRoute,
-} as any)
 const AppAdminRoute = AppAdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -53,6 +48,11 @@ const AuthLoginRouteRoute = AuthLoginRouteRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => AuthRouteRoute,
+} as any)
+const AppSettingsRouteRoute = AppSettingsRouteRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const AppItemsRouteRoute = AppItemsRouteRouteImport.update({
   id: '/items',
@@ -77,10 +77,10 @@ const AppItemsItemIdRouteRoute = AppItemsItemIdRouteRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/items': typeof AppItemsRouteRoute
+  '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
   '/admin': typeof AppAdminRoute
-  '/settings': typeof AppSettingsRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
   '/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
@@ -88,10 +88,10 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/items': typeof AppItemsRouteRoute
+  '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
   '/admin': typeof AppAdminRoute
-  '/settings': typeof AppSettingsRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
   '/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
@@ -102,10 +102,10 @@ export interface FileRoutesById {
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
   '/_app/items': typeof AppItemsRouteRoute
+  '/_app/settings': typeof AppSettingsRouteRoute
   '/_auth/login': typeof AuthLoginRouteRoute
   '/_auth/signup': typeof AuthSignupRouteRoute
   '/_app/admin': typeof AppAdminRoute
-  '/_app/settings': typeof AppSettingsRoute
   '/_app/': typeof AppIndexRoute
   '/_app/items_/$itemId': typeof AppItemsItemIdRouteRoute
   '/_app/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
@@ -115,10 +115,10 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/items'
+    | '/settings'
     | '/login'
     | '/signup'
     | '/admin'
-    | '/settings'
     | '/'
     | '/items/$itemId'
     | '/demo/tanstack-query'
@@ -126,10 +126,10 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/items'
+    | '/settings'
     | '/login'
     | '/signup'
     | '/admin'
-    | '/settings'
     | '/'
     | '/items/$itemId'
     | '/demo/tanstack-query'
@@ -139,10 +139,10 @@ export interface FileRouteTypes {
     | '/_app'
     | '/_auth'
     | '/_app/items'
+    | '/_app/settings'
     | '/_auth/login'
     | '/_auth/signup'
     | '/_app/admin'
-    | '/_app/settings'
     | '/_app/'
     | '/_app/items_/$itemId'
     | '/_app/demo/tanstack-query'
@@ -177,13 +177,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/settings': {
-      id: '/_app/settings'
-      path: '/settings'
-      fullPath: '/settings'
-      preLoaderRoute: typeof AppSettingsRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_app/admin': {
       id: '/_app/admin'
       path: '/admin'
@@ -204,6 +197,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/login'
       preLoaderRoute: typeof AuthLoginRouteRouteImport
       parentRoute: typeof AuthRouteRoute
+    }
+    '/_app/settings': {
+      id: '/_app/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof AppSettingsRouteRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/_app/items': {
       id: '/_app/items'
@@ -238,8 +238,8 @@ declare module '@tanstack/react-router' {
 
 interface AppRouteRouteChildren {
   AppItemsRouteRoute: typeof AppItemsRouteRoute
+  AppSettingsRouteRoute: typeof AppSettingsRouteRoute
   AppAdminRoute: typeof AppAdminRoute
-  AppSettingsRoute: typeof AppSettingsRoute
   AppIndexRoute: typeof AppIndexRoute
   AppItemsItemIdRouteRoute: typeof AppItemsItemIdRouteRoute
   AppDemoTanstackQueryRoute: typeof AppDemoTanstackQueryRoute
@@ -248,8 +248,8 @@ interface AppRouteRouteChildren {
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
   AppItemsRouteRoute: AppItemsRouteRoute,
+  AppSettingsRouteRoute: AppSettingsRouteRoute,
   AppAdminRoute: AppAdminRoute,
-  AppSettingsRoute: AppSettingsRoute,
   AppIndexRoute: AppIndexRoute,
   AppItemsItemIdRouteRoute: AppItemsItemIdRouteRoute,
   AppDemoTanstackQueryRoute: AppDemoTanstackQueryRoute,

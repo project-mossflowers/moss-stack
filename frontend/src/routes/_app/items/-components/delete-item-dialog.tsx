@@ -20,8 +20,8 @@ import { Button } from '@/components/ui/button'
 
 import {
   itemsDeleteItemMutation,
-  itemsReadItemsQueryKey,
   itemsReadItemQueryKey,
+  itemsReadItemsQueryKey,
 } from '@/api/@tanstack/react-query.gen'
 
 interface DeleteItemDialogProps {
@@ -61,7 +61,7 @@ export function DeleteItemDialog({
         queryKey: itemsReadItemQueryKey({ path: { id: item.id } }),
       })
       setOpen(false)
-      
+
       // Navigate to items list if this is from a detail page
       if (shouldNavigateOnDelete) {
         router.navigate({
@@ -74,7 +74,7 @@ export function DeleteItemDialog({
           },
         })
       }
-      
+
       onSuccess?.()
     },
     onError: (error: any) => {

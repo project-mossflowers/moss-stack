@@ -32,8 +32,8 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -167,13 +167,10 @@ const columns: Array<ColumnDef<ItemPublic>> = [
 
       return (
         <div className="flex items-center gap-1">
-          <Link to='/items/$itemId' params={{ itemId: row.original.id }}>
-          <Button
-            variant="ghost"
-            size="sm"
-          >
-            View Details
-          </Button>
+          <Link to="/items/$itemId" params={{ itemId: row.original.id }}>
+            <Button variant="ghost" size="sm">
+              View Details
+            </Button>
           </Link>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -191,7 +188,7 @@ const columns: Array<ColumnDef<ItemPublic>> = [
                 Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem 
+              <DropdownMenuItem
                 onClick={() => setDeleteOpen(true)}
                 className="text-destructive focus:bg-destructive/10 focus:text-destructive"
               >
