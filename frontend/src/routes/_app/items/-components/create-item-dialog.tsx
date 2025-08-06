@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
-import { toast } from 'sonner'
+import { toast } from '@/hooks/use-toast'
 
 import { LoaderIcon, PlusIcon } from 'lucide-react'
 import type { ItemCreate } from '@/api/types.gen'
