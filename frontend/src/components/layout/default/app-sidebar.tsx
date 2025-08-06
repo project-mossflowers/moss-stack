@@ -25,6 +25,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from '@/components/ui/sidebar'
+import useAuth from '@/hooks/use-auth'
 
 const data = {
   user: {
@@ -129,6 +130,19 @@ const data = {
 }
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user } = useAuth()
+
+  // Filter nav items based on user permissions
+  const navSecondary = React.useMemo(() => {
+    return data.navSecondary.filter((item) => {
+      // Only show admin link to superusers
+      if (item.url === '/admin') {
+        return user?.is_superuser === true
+      }
+      return true
+    })
+  }, [user?.is_superuser])
+
   return (
     <Sidebar collapsible="offcanvas" {...props}>
       <SidebarHeader>
@@ -149,7 +163,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       <SidebarContent>
         <NavMain items={data.navMain} />
         {/* <NavDocuments items={data.documents} /> */}
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser />

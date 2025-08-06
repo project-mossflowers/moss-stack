@@ -1,13 +1,9 @@
-import {
-  
-  Link,
-  createFileRoute
-} from '@tanstack/react-router'
+import { Link, createFileRoute } from '@tanstack/react-router'
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { ArrowLeft, Calendar, Clock, User } from 'lucide-react'
 import { EditItemDialog } from '../../items/-components/edit-item-dialog'
 import { DeleteItemDialog } from '../../items/-components/delete-item-dialog'
-import type {ErrorComponentProps} from '@tanstack/react-router';
+import type { ErrorComponentProps } from '@tanstack/react-router'
 import { itemsReadItemOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
 import { Button } from '@/components/ui/button'

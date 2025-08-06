@@ -12,13 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
-import { Route as AppAdminRouteImport } from './routes/_app/admin'
 import { Route as AuthSignupRouteRouteImport } from './routes/_auth/signup/route'
 import { Route as AuthLoginRouteRouteImport } from './routes/_auth/login/route'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
 import { Route as AppItemsRouteRouteImport } from './routes/_app/items/route'
+import { Route as AppAdminRouteRouteImport } from './routes/_app/admin/route'
 import { Route as AppDashboardIndexRouteImport } from './routes/_app/dashboard/index'
-import { Route as AppDemoTanstackQueryRouteImport } from './routes/_app/demo.tanstack-query'
 import { Route as AppItemsItemIdRouteRouteImport } from './routes/_app/items_/$itemId/route'
 
 const AuthRouteRoute = AuthRouteRouteImport.update({
@@ -32,11 +31,6 @@ const AppRouteRoute = AppRouteRouteImport.update({
 const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppAdminRoute = AppAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AuthSignupRouteRoute = AuthSignupRouteRouteImport.update({
@@ -59,14 +53,14 @@ const AppItemsRouteRoute = AppItemsRouteRouteImport.update({
   path: '/items',
   getParentRoute: () => AppRouteRoute,
 } as any)
+const AppAdminRouteRoute = AppAdminRouteRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRouteRoute,
+} as any)
 const AppDashboardIndexRoute = AppDashboardIndexRouteImport.update({
   id: '/dashboard/',
   path: '/dashboard/',
-  getParentRoute: () => AppRouteRoute,
-} as any)
-const AppDemoTanstackQueryRoute = AppDemoTanstackQueryRouteImport.update({
-  id: '/demo/tanstack-query',
-  path: '/demo/tanstack-query',
   getParentRoute: () => AppRouteRoute,
 } as any)
 const AppItemsItemIdRouteRoute = AppItemsItemIdRouteRouteImport.update({
@@ -76,76 +70,70 @@ const AppItemsItemIdRouteRoute = AppItemsItemIdRouteRouteImport.update({
 } as any)
 
 export interface FileRoutesByFullPath {
+  '/admin': typeof AppAdminRouteRoute
   '/items': typeof AppItemsRouteRoute
   '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
-  '/admin': typeof AppAdminRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
-  '/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
   '/dashboard': typeof AppDashboardIndexRoute
 }
 export interface FileRoutesByTo {
+  '/admin': typeof AppAdminRouteRoute
   '/items': typeof AppItemsRouteRoute
   '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
-  '/admin': typeof AppAdminRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
-  '/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
   '/dashboard': typeof AppDashboardIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_app': typeof AppRouteRouteWithChildren
   '/_auth': typeof AuthRouteRouteWithChildren
+  '/_app/admin': typeof AppAdminRouteRoute
   '/_app/items': typeof AppItemsRouteRoute
   '/_app/settings': typeof AppSettingsRouteRoute
   '/_auth/login': typeof AuthLoginRouteRoute
   '/_auth/signup': typeof AuthSignupRouteRoute
-  '/_app/admin': typeof AppAdminRoute
   '/_app/': typeof AppIndexRoute
   '/_app/items_/$itemId': typeof AppItemsItemIdRouteRoute
-  '/_app/demo/tanstack-query': typeof AppDemoTanstackQueryRoute
   '/_app/dashboard/': typeof AppDashboardIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/admin'
     | '/items'
     | '/settings'
     | '/login'
     | '/signup'
-    | '/admin'
     | '/'
     | '/items/$itemId'
-    | '/demo/tanstack-query'
     | '/dashboard'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/admin'
     | '/items'
     | '/settings'
     | '/login'
     | '/signup'
-    | '/admin'
     | '/'
     | '/items/$itemId'
-    | '/demo/tanstack-query'
     | '/dashboard'
   id:
     | '__root__'
     | '/_app'
     | '/_auth'
+    | '/_app/admin'
     | '/_app/items'
     | '/_app/settings'
     | '/_auth/login'
     | '/_auth/signup'
-    | '/_app/admin'
     | '/_app/'
     | '/_app/items_/$itemId'
-    | '/_app/demo/tanstack-query'
     | '/_app/dashboard/'
   fileRoutesById: FileRoutesById
 }
@@ -177,13 +165,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
     }
-    '/_app/admin': {
-      id: '/_app/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AppAdminRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
     '/_auth/signup': {
       id: '/_auth/signup'
       path: '/signup'
@@ -212,18 +193,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppItemsRouteRouteImport
       parentRoute: typeof AppRouteRoute
     }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
     '/_app/dashboard/': {
       id: '/_app/dashboard/'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardIndexRouteImport
-      parentRoute: typeof AppRouteRoute
-    }
-    '/_app/demo/tanstack-query': {
-      id: '/_app/demo/tanstack-query'
-      path: '/demo/tanstack-query'
-      fullPath: '/demo/tanstack-query'
-      preLoaderRoute: typeof AppDemoTanstackQueryRouteImport
       parentRoute: typeof AppRouteRoute
     }
     '/_app/items_/$itemId': {
@@ -237,22 +218,20 @@ declare module '@tanstack/react-router' {
 }
 
 interface AppRouteRouteChildren {
+  AppAdminRouteRoute: typeof AppAdminRouteRoute
   AppItemsRouteRoute: typeof AppItemsRouteRoute
   AppSettingsRouteRoute: typeof AppSettingsRouteRoute
-  AppAdminRoute: typeof AppAdminRoute
   AppIndexRoute: typeof AppIndexRoute
   AppItemsItemIdRouteRoute: typeof AppItemsItemIdRouteRoute
-  AppDemoTanstackQueryRoute: typeof AppDemoTanstackQueryRoute
   AppDashboardIndexRoute: typeof AppDashboardIndexRoute
 }
 
 const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppAdminRouteRoute: AppAdminRouteRoute,
   AppItemsRouteRoute: AppItemsRouteRoute,
   AppSettingsRouteRoute: AppSettingsRouteRoute,
-  AppAdminRoute: AppAdminRoute,
   AppIndexRoute: AppIndexRoute,
   AppItemsItemIdRouteRoute: AppItemsItemIdRouteRoute,
-  AppDemoTanstackQueryRoute: AppDemoTanstackQueryRoute,
   AppDashboardIndexRoute: AppDashboardIndexRoute,
 }
 

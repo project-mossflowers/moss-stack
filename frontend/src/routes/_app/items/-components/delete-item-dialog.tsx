@@ -1,10 +1,10 @@
 import * as React from 'react'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useRouter } from '@tanstack/react-router'
-import { toast } from '@/hooks/use-toast'
 
 import { LoaderIcon, TrashIcon } from 'lucide-react'
 import type { ItemPublic } from '@/api/types.gen'
+import { toast } from '@/hooks/use-toast'
 import {
   AlertDialog,
   AlertDialogAction,
