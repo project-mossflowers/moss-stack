@@ -36,7 +36,7 @@ export const Route = createFileRoute('/_app/settings')({
 
 const profileFormSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
-  email: z.string().email('Invalid email address'),
+  email: z.email('Invalid email address'),
 })
 
 const passwordFormSchema = z.object({

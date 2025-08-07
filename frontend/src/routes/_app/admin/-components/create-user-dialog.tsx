@@ -33,7 +33,7 @@ import { Switch } from '@/components/ui/switch'
 import { useHandleError } from '@/hooks/use-handle-error'
 
 const createUserSchema = z.object({
-  email: z.string().email('Please enter a valid email address'),
+  email: z.email('Please enter a valid email address'),
   full_name: z.string().min(1, 'Full name is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   is_active: z.boolean(),
