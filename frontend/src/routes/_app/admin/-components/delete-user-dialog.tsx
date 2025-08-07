@@ -23,21 +23,26 @@ import useAuth from '@/hooks/use-auth'
 
 interface DeleteUserDialogProps {
   user: UserPublic
-  children: React.ReactNode
+  children?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function DeleteUserDialog({ user, children }: DeleteUserDialogProps) {
-  const [open, setOpen] = React.useState(false)
+export function DeleteUserDialog({ user, children, open, onOpenChange }: DeleteUserDialogProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
   const queryClient = useQueryClient()
   const handleError = useHandleError()
   const { user: currentUser } = useAuth()
+
+  const isOpen = open !== undefined ? open : internalOpen
+  const setIsOpen = onOpenChange || setInternalOpen
 
   const deleteUserMutation = useMutation({
     ...usersDeleteUserMutation(),
     onSuccess: () => {
       toast.success('User deleted successfully')
       queryClient.invalidateQueries({ queryKey: usersReadUsersQueryKey() })
-      setOpen(false)
+      setIsOpen(false)
     },
     onError: handleError,
   })
@@ -56,8 +61,8 @@ export function DeleteUserDialog({ user, children }: DeleteUserDialogProps) {
   }
 
   return (
-    <AlertDialog open={open} onOpenChange={setOpen}>
-      <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>
+    <AlertDialog open={isOpen} onOpenChange={setIsOpen}>
+      {children && <AlertDialogTrigger asChild>{children}</AlertDialogTrigger>}
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle className="flex items-center gap-2">

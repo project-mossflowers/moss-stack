@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any
 from sqlmodel import select
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -7,7 +8,12 @@ from src.routes.users.models import User, UserCreate, UserUpdate
 
 async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User:
     db_obj = User.model_validate(
-        user_create, update={"hashed_password": get_password_hash(user_create.password)}
+        user_create,
+        update={
+            "hashed_password": get_password_hash(user_create.password),
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        },
     )
     session.add(db_obj)
     await session.commit()

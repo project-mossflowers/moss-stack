@@ -1,7 +1,23 @@
 import uuid
+from datetime import datetime
+from enum import Enum
 
 from pydantic import EmailStr
-from sqlmodel import Field, Relationship, SQLModel
+from sqlmodel import Field, Relationship, SQLModel, Column, DateTime
+from sqlalchemy import func
+
+
+# Enum for sorting users
+class UserSortField(str, Enum):
+    email = "email"
+    full_name = "full_name"
+    created_at = "created_at"
+    updated_at = "updated_at"
+
+
+class SortOrder(str, Enum):
+    asc = "asc"
+    desc = "desc"
 
 
 # Shared properties
@@ -16,6 +32,12 @@ class UserBase(SQLModel):
 class User(UserBase, table=True):
     id: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     hashed_password: str
+    created_at: datetime = Field(
+        sa_column=Column(DateTime, nullable=False, server_default=func.now())
+    )
+    updated_at: datetime = Field(
+        sa_column=Column(DateTime, nullable=False, server_default=func.now(), onupdate=func.now())
+    )
     items: list["Item"] = Relationship(back_populates="owner", cascade_delete=True)  # type: ignore  # noqa: F821
 
 
@@ -49,8 +71,13 @@ class UpdatePassword(SQLModel):
 # Properties to return via API, id is always required
 class UserPublic(UserBase):
     id: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
 
 
 class UsersPublic(SQLModel):
     data: list[UserPublic]
-    count: int
+    page: int
+    size: int
+    total: int
+    pages: int

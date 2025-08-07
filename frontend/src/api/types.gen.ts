@@ -275,6 +275,14 @@ export type UserPublic = {
    * Id
    */
   id: string
+  /**
+   * Created At
+   */
+  created_at: Date
+  /**
+   * Updated At
+   */
+  updated_at: Date
 }
 
 /**
@@ -294,6 +302,21 @@ export type UserRegister = {
    */
   full_name?: string | null
 }
+
+/**
+ * UserSortField
+ */
+export const UserSortField = {
+  EMAIL: 'email',
+  FULL_NAME: 'full_name',
+  CREATED_AT: 'created_at',
+  UPDATED_AT: 'updated_at',
+} as const
+
+/**
+ * UserSortField
+ */
+export type UserSortField = (typeof UserSortField)[keyof typeof UserSortField]
 
 /**
  * UserUpdate
@@ -344,9 +367,21 @@ export type UsersPublic = {
    */
   data: Array<UserPublic>
   /**
-   * Count
+   * Page
    */
-  count: number
+  page: number
+  /**
+   * Size
+   */
+  size: number
+  /**
+   * Total
+   */
+  total: number
+  /**
+   * Pages
+   */
+  pages: number
 }
 
 /**
@@ -507,13 +542,28 @@ export type UsersReadUsersData = {
   path?: never
   query?: {
     /**
-     * Skip
+     * Page
+     * Page number (starts from 1)
      */
-    skip?: number
+    page?: number
     /**
-     * Limit
+     * Size
+     * Number of users per page
      */
-    limit?: number
+    size?: number
+    /**
+     * Search
+     * Search in email and full name
+     */
+    search?: string | null
+    /**
+     * Field to sort by
+     */
+    sort_by?: UserSortField
+    /**
+     * Sort order (asc/desc)
+     */
+    sort_order?: SortOrder
   }
   url: '/api/v1/users/'
 }

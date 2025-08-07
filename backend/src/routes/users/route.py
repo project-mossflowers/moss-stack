@@ -1,8 +1,9 @@
 import uuid
-from typing import Any
+import math
+from typing import Any, Optional
 
-from fastapi import APIRouter, Depends, HTTPException
-from sqlmodel import col, delete, func, select
+from fastapi import APIRouter, Depends, HTTPException, Query
+from sqlmodel import col, delete, func, select, or_, desc, asc
 
 from src.routes.items.models import Item
 from src.routes.users.models import (
@@ -14,6 +15,8 @@ from src.routes.users.models import (
     UserUpdateMe,
     UsersPublic,
     UserRegister,
+    UserSortField,
+    SortOrder,
 )
 from src.routes.users import service as user_service
 from src.routes.deps import (
@@ -36,20 +39,77 @@ router = APIRouter(prefix="/users", tags=["users"])
     dependencies=[Depends(get_current_active_superuser)],
     response_model=UsersPublic,
 )
-async def read_users(session: AsyncSessionDep, skip: int = 0, limit: int = 100) -> Any:
+async def read_users(
+    session: AsyncSessionDep,
+    page: int = Query(default=1, ge=1, description="Page number (starts from 1)"),
+    size: int = Query(default=10, ge=1, le=100, description="Number of users per page"),
+    search: Optional[str] = Query(default=None, description="Search in email and full name"),
+    sort_by: UserSortField = Query(default=UserSortField.email, description="Field to sort by"),
+    sort_order: SortOrder = Query(default=SortOrder.asc, description="Sort order (asc/desc)"),
+) -> Any:
     """
-    Retrieve users.
+    Retrieve users with pagination, filtering, and sorting.
+    
+    Args:
+        page: Page number (1-based)
+        size: Number of users per page (1-100)
+        search: Search term for email and full name
+        sort_by: Field to sort by (email, full_name)
+        sort_order: Sort order (asc/desc)
+    
+    Returns:
+        Paginated list of users with metadata
     """
+    # Calculate offset
+    offset = (page - 1) * size
 
+    # Build base query
+    base_filters = []
+    
+    # Add search filter
+    if search:
+        search_filter = or_(
+            User.email.icontains(search),
+            User.full_name.icontains(search) if User.full_name is not None else False
+        )
+        base_filters.append(search_filter)
+
+    # Build count query
     count_statement = select(func.count()).select_from(User)
+    if base_filters:
+        count_statement = count_statement.where(*base_filters)
+    
     count_result = await session.exec(count_statement)
-    count = count_result.one()
+    total = count_result.one()
 
-    statement = select(User).offset(skip).limit(limit)
+    # Build data query with sorting
+    statement = select(User)
+    if base_filters:
+        statement = statement.where(*base_filters)
+    
+    # Add sorting
+    sort_column = getattr(User, sort_by.value)
+    if sort_order == SortOrder.desc:
+        statement = statement.order_by(desc(sort_column))
+    else:
+        statement = statement.order_by(asc(sort_column))
+    
+    # Add pagination
+    statement = statement.offset(offset).limit(size)
+    
     users_result = await session.exec(statement)
     users = users_result.all()
 
-    return UsersPublic(data=users, count=count)
+    # Calculate total pages
+    pages = math.ceil(total / size) if total > 0 else 1
+
+    return UsersPublic(
+        data=users,
+        page=page,
+        size=size,
+        total=total,
+        pages=pages
+    )
 
 
 @router.post(

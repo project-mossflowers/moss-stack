@@ -6,19 +6,29 @@ import { CreateUserDialog } from './-components/create-user-dialog'
 import { UsersTable } from './-components/users-table'
 import { usersReadUsersOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
+import { UserSortField, SortOrder } from '@/api/types.gen'
 import useAuth from '@/hooks/use-auth'
 
 const usersSearchSchema = z.object({
-  skip: z.number().catch(0),
-  limit: z.number().catch(100),
+  page: z.number().catch(1),
+  size: z.number().catch(10),
+  search: z.string().optional(),
+  sort_by: z.enum([UserSortField.EMAIL, UserSortField.FULL_NAME, UserSortField.CREATED_AT, UserSortField.UPDATED_AT]).catch(UserSortField.CREATED_AT),
+  sort_order: z.enum([SortOrder.ASC, SortOrder.DESC]).catch(SortOrder.DESC),
 })
 
 function getUsersQueryOptions(params: z.infer<typeof usersSearchSchema>) {
+  const query: any = {
+    page: params.page,
+    size: params.size,
+  }
+
+  if (params.search) query.search = params.search
+  if (params.sort_by) query.sort_by = params.sort_by
+  if (params.sort_order) query.sort_order = params.sort_order
+
   return usersReadUsersOptions({
-    query: {
-      skip: params.skip,
-      limit: params.limit,
-    },
+    query,
   })
 }
 
@@ -57,9 +67,16 @@ function RouteComponent() {
         <CreateUserDialog />
       </div>
 
-      <div className="mx-auto w-full px-4 lg:px-6">
-        <UsersTable data={result.data} isLoading={result.isLoading} />
-      </div>
+      <UsersTable 
+        data={result.data?.data || []}
+        pagination={result.data ? {
+          page: result.data.page,
+          size: result.data.size,
+          total: result.data.total,
+          pages: result.data.pages,
+        } : undefined}
+        searchParams={searchParams}
+      />
     </div>
   )
 }

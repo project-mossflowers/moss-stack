@@ -387,9 +387,19 @@ export const UserPublicSchema = {
       format: 'uuid',
       title: 'Id',
     },
+    created_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Created At',
+    },
+    updated_at: {
+      type: 'string',
+      format: 'date-time',
+      title: 'Updated At',
+    },
   },
   type: 'object',
-  required: ['email', 'id'],
+  required: ['email', 'id', 'created_at', 'updated_at'],
   title: 'UserPublic',
 } as const
 
@@ -423,6 +433,12 @@ export const UserRegisterSchema = {
   type: 'object',
   required: ['email', 'password'],
   title: 'UserRegister',
+} as const
+
+export const UserSortFieldSchema = {
+  type: 'string',
+  enum: ['email', 'full_name', 'created_at', 'updated_at'],
+  title: 'UserSortField',
 } as const
 
 export const UserUpdateSchema = {
@@ -521,13 +537,25 @@ export const UsersPublicSchema = {
       type: 'array',
       title: 'Data',
     },
-    count: {
+    page: {
       type: 'integer',
-      title: 'Count',
+      title: 'Page',
+    },
+    size: {
+      type: 'integer',
+      title: 'Size',
+    },
+    total: {
+      type: 'integer',
+      title: 'Total',
+    },
+    pages: {
+      type: 'integer',
+      title: 'Pages',
     },
   },
   type: 'object',
-  required: ['data', 'count'],
+  required: ['data', 'page', 'size', 'total', 'pages'],
   title: 'UsersPublic',
 } as const
 

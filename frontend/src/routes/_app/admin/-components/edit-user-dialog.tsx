@@ -51,13 +51,18 @@ type EditUserFormValues = z.infer<typeof editUserSchema>
 
 interface EditUserDialogProps {
   user: UserPublic
-  children: React.ReactNode
+  children?: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export function EditUserDialog({ user, children }: EditUserDialogProps) {
-  const [open, setOpen] = React.useState(false)
+export function EditUserDialog({ user, children, open, onOpenChange }: EditUserDialogProps) {
+  const [internalOpen, setInternalOpen] = React.useState(false)
   const queryClient = useQueryClient()
   const handleError = useHandleError()
+
+  const isOpen = open !== undefined ? open : internalOpen
+  const setIsOpen = onOpenChange || setInternalOpen
 
   const form = useForm<EditUserFormValues>({
     resolver: zodResolver(editUserSchema),
@@ -75,7 +80,7 @@ export function EditUserDialog({ user, children }: EditUserDialogProps) {
     onSuccess: () => {
       toast.success('User updated successfully')
       queryClient.invalidateQueries({ queryKey: usersReadUsersQueryKey() })
-      setOpen(false)
+      setIsOpen(false)
     },
     onError: handleError,
   })
@@ -105,7 +110,7 @@ export function EditUserDialog({ user, children }: EditUserDialogProps) {
   }
 
   React.useEffect(() => {
-    if (open) {
+    if (isOpen) {
       form.reset({
         email: user.email,
         full_name: user.full_name || '',
@@ -114,11 +119,11 @@ export function EditUserDialog({ user, children }: EditUserDialogProps) {
         is_superuser: user.is_superuser ?? false,
       })
     }
-  }, [open, user, form])
+  }, [isOpen, user, form])
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      {children && <DialogTrigger asChild>{children}</DialogTrigger>}
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Edit User</DialogTitle>
@@ -221,7 +226,7 @@ export function EditUserDialog({ user, children }: EditUserDialogProps) {
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setOpen(false)}
+                onClick={() => setIsOpen(false)}
               >
                 Cancel
               </Button>
