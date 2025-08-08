@@ -27,7 +27,7 @@ const strongPasswordSchema = passwordSchema.regex(
  * 登录表单验证模式
  */
 export const loginSchema = z.object({
-  username: emailSchema,
+  username: z.string().min(1, 'Username or email is required'),
   password: passwordSchema,
 })
 

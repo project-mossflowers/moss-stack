@@ -37,6 +37,7 @@ export const Route = createFileRoute('/_app/settings')({
 const profileFormSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
   email: z.email('Invalid email address'),
+  username: z.string().max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
 })
 
 const passwordFormSchema = z.object({
@@ -54,10 +55,12 @@ function RouteComponent() {
     defaultValues: {
       full_name: user?.full_name || '',
       email: user?.email || '',
+      username: user?.username || '',
     },
     values: {
       full_name: user?.full_name || '',
       email: user?.email || '',
+      username: user?.username || '',
     },
   })
 
@@ -146,6 +149,23 @@ function RouteComponent() {
                         <Input
                           type="email"
                           placeholder="Enter your email"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <FormField
+                  control={profileForm.control}
+                  name="username"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          type="text"
+                          placeholder="username (optional, for LDAP users)"
                           {...field}
                         />
                       </FormControl>

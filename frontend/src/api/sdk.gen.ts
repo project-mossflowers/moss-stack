@@ -24,6 +24,11 @@ import {
 } from './transformers.gen'
 import type {Client, Options as ClientOptions, TDataShape} from './client';
 import type {
+  AuthLdapLoginData,
+  AuthLdapLoginErrors,
+  AuthLdapLoginResponses,
+  AuthLdapStatusData,
+  AuthLdapStatusResponses,
   AuthLoginAccessTokenData,
   AuthLoginAccessTokenErrors,
   AuthLoginAccessTokenResponses,
@@ -107,7 +112,8 @@ export type Options<
 
 /**
  * Login Access Token
- * OAuth2 compatible token login, get an access token for future requests
+ * OAuth2 compatible token login, get an access token for future requests.
+ * Supports both local and LDAP authentication.
  */
 export const authLoginAccessToken = <ThrowOnError extends boolean = false>(
   options: Options<AuthLoginAccessTokenData, ThrowOnError>,
@@ -125,6 +131,47 @@ export const authLoginAccessToken = <ThrowOnError extends boolean = false>(
       'Content-Type': 'application/x-www-form-urlencoded',
       ...options.headers,
     },
+  })
+}
+
+/**
+ * Ldap Login
+ * LDAP-only authentication endpoint
+ */
+export const authLdapLogin = <ThrowOnError extends boolean = false>(
+  options: Options<AuthLdapLoginData, ThrowOnError>,
+) => {
+  return (options.client ?? _heyApiClient).post<
+    AuthLdapLoginResponses,
+    AuthLdapLoginErrors,
+    ThrowOnError
+  >({
+    ...urlSearchParamsBodySerializer,
+    responseType: 'json',
+    url: '/api/v1/auth/ldap-login',
+    ...options,
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      ...options.headers,
+    },
+  })
+}
+
+/**
+ * Ldap Status
+ * Check LDAP configuration status
+ */
+export const authLdapStatus = <ThrowOnError extends boolean = false>(
+  options?: Options<AuthLdapStatusData, ThrowOnError>,
+) => {
+  return (options?.client ?? _heyApiClient).get<
+    AuthLdapStatusResponses,
+    unknown,
+    ThrowOnError
+  >({
+    responseType: 'json',
+    url: '/api/v1/auth/ldap-status',
+    ...options,
   })
 }
 

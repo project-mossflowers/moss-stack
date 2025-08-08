@@ -37,6 +37,7 @@ const editUserSchema = z.object({
     .email('Please enter a valid email address')
     .optional()
     .or(z.literal('')),
+  username: z.string().max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
   full_name: z.string().optional(),
   password: z
     .string()
@@ -56,7 +57,12 @@ interface EditUserDialogProps {
   onOpenChange?: (open: boolean) => void
 }
 
-export function EditUserDialog({ user, children, open, onOpenChange }: EditUserDialogProps) {
+export function EditUserDialog({
+  user,
+  children,
+  open,
+  onOpenChange,
+}: EditUserDialogProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const queryClient = useQueryClient()
   const handleError = useHandleError()
@@ -68,6 +74,7 @@ export function EditUserDialog({ user, children, open, onOpenChange }: EditUserD
     resolver: zodResolver(editUserSchema),
     defaultValues: {
       email: user.email,
+      username: user.username || '',
       full_name: user.full_name || '',
       password: '',
       is_active: user.is_active ?? true,
@@ -95,6 +102,10 @@ export function EditUserDialog({ user, children, open, onOpenChange }: EditUserD
       updateData.email = data.email
     }
 
+    if (data.username && data.username !== user.username) {
+      updateData.username = data.username
+    }
+
     if (data.full_name && data.full_name !== user.full_name) {
       updateData.full_name = data.full_name
     }
@@ -113,6 +124,7 @@ export function EditUserDialog({ user, children, open, onOpenChange }: EditUserD
     if (isOpen) {
       form.reset({
         email: user.email,
+        username: user.username || '',
         full_name: user.full_name || '',
         password: '',
         is_active: user.is_active ?? true,
@@ -143,6 +155,23 @@ export function EditUserDialog({ user, children, open, onOpenChange }: EditUserD
                     <Input
                       placeholder="user@example.com"
                       type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="username (optional, for LDAP users)"
+                      type="text"
                       {...field}
                     />
                   </FormControl>

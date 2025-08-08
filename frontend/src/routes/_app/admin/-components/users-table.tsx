@@ -27,7 +27,12 @@ import type {
   VisibilityState,
 } from '@tanstack/react-table'
 
-import type { UserPublic, UsersPublic, UserSortField, SortOrder } from '@/api/types.gen'
+import type {
+  SortOrder,
+  UserPublic,
+  UserSortField,
+  UsersPublic,
+} from '@/api/types.gen'
 import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import {
@@ -120,6 +125,20 @@ const columns: Array<ColumnDef<UserPublic>> = [
       </div>
     ),
     enableHiding: false,
+  },
+  {
+    accessorKey: 'username',
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === 'asc')}
+        className="h-8 px-2"
+      >
+        Username
+        <ArrowUpDownIcon className="ml-2 h-4 w-4" />
+      </Button>
+    ),
+    cell: ({ row }) => row.getValue('username') || '—',
   },
   {
     accessorKey: 'full_name',

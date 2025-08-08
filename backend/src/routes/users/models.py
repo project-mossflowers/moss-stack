@@ -10,6 +10,7 @@ from sqlalchemy import func
 # Enum for sorting users
 class UserSortField(str, Enum):
     email = "email"
+    username = "username"
     full_name = "full_name"
     created_at = "created_at"
     updated_at = "updated_at"
@@ -23,6 +24,7 @@ class SortOrder(str, Enum):
 # Shared properties
 class UserBase(SQLModel):
     email: EmailStr = Field(unique=True, index=True, max_length=255)
+    username: str | None = Field(default=None, unique=True, index=True, max_length=255)
     is_active: bool = True
     is_superuser: bool = False
     full_name: str | None = Field(default=None, max_length=255)
@@ -61,6 +63,7 @@ class UserUpdate(UserBase):
 class UserUpdateMe(SQLModel):
     full_name: str | None = Field(default=None, max_length=255)
     email: EmailStr | None = Field(default=None, max_length=255)
+    username: str | None = Field(default=None, max_length=255)
 
 
 class UpdatePassword(SQLModel):

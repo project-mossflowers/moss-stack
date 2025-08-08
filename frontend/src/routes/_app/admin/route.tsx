@@ -6,14 +6,21 @@ import { CreateUserDialog } from './-components/create-user-dialog'
 import { UsersTable } from './-components/users-table'
 import { usersReadUsersOptions } from '@/api/@tanstack/react-query.gen'
 import { PageTitle } from '@/components/page-title'
-import { UserSortField, SortOrder } from '@/api/types.gen'
+import { SortOrder, UserSortField } from '@/api/types.gen'
 import useAuth from '@/hooks/use-auth'
 
 const usersSearchSchema = z.object({
   page: z.number().catch(1),
   size: z.number().catch(10),
   search: z.string().optional(),
-  sort_by: z.enum([UserSortField.EMAIL, UserSortField.FULL_NAME, UserSortField.CREATED_AT, UserSortField.UPDATED_AT]).catch(UserSortField.CREATED_AT),
+  sort_by: z
+    .enum([
+      UserSortField.EMAIL,
+      UserSortField.FULL_NAME,
+      UserSortField.CREATED_AT,
+      UserSortField.UPDATED_AT,
+    ])
+    .catch(UserSortField.CREATED_AT),
   sort_order: z.enum([SortOrder.ASC, SortOrder.DESC]).catch(SortOrder.DESC),
 })
 
@@ -67,14 +74,18 @@ function RouteComponent() {
         <CreateUserDialog />
       </div>
 
-      <UsersTable 
+      <UsersTable
         data={result.data?.data || []}
-        pagination={result.data ? {
-          page: result.data.page,
-          size: result.data.size,
-          total: result.data.total,
-          pages: result.data.pages,
-        } : undefined}
+        pagination={
+          result.data
+            ? {
+                page: result.data.page,
+                size: result.data.size,
+                total: result.data.total,
+                pages: result.data.pages,
+              }
+            : undefined
+        }
         searchParams={searchParams}
       />
     </div>

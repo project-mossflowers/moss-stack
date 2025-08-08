@@ -28,7 +28,12 @@ interface DeleteUserDialogProps {
   onOpenChange?: (open: boolean) => void
 }
 
-export function DeleteUserDialog({ user, children, open, onOpenChange }: DeleteUserDialogProps) {
+export function DeleteUserDialog({
+  user,
+  children,
+  open,
+  onOpenChange,
+}: DeleteUserDialogProps) {
   const [internalOpen, setInternalOpen] = React.useState(false)
   const queryClient = useQueryClient()
   const handleError = useHandleError()

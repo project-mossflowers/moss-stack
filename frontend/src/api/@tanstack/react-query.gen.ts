@@ -9,6 +9,8 @@ import {
 } from '@tanstack/react-query'
 import {
   
+  authLdapLogin,
+  authLdapStatus,
   authLoginAccessToken,
   authRecoverPassword,
   authRecoverPasswordHtmlContent,
@@ -36,6 +38,10 @@ import { client as _heyApiClient } from '../client.gen'
 import type {DefaultError, InfiniteData, UseMutationOptions} from '@tanstack/react-query';
 import type {Options} from '../sdk.gen';
 import type {
+  AuthLdapLoginData,
+  AuthLdapLoginError,
+  AuthLdapLoginResponse,
+  AuthLdapStatusData,
   AuthLoginAccessTokenData,
   AuthLoginAccessTokenError,
   AuthLoginAccessTokenResponse,
@@ -137,7 +143,8 @@ export const authLoginAccessTokenQueryKey = (
 
 /**
  * Login Access Token
- * OAuth2 compatible token login, get an access token for future requests
+ * OAuth2 compatible token login, get an access token for future requests.
+ * Supports both local and LDAP authentication.
  */
 export const authLoginAccessTokenOptions = (
   options: Options<AuthLoginAccessTokenData>,
@@ -158,7 +165,8 @@ export const authLoginAccessTokenOptions = (
 
 /**
  * Login Access Token
- * OAuth2 compatible token login, get an access token for future requests
+ * OAuth2 compatible token login, get an access token for future requests.
+ * Supports both local and LDAP authentication.
  */
 export const authLoginAccessTokenMutation = (
   options?: Partial<Options<AuthLoginAccessTokenData>>,
@@ -182,6 +190,80 @@ export const authLoginAccessTokenMutation = (
     },
   }
   return mutationOptions
+}
+
+export const authLdapLoginQueryKey = (options: Options<AuthLdapLoginData>) =>
+  createQueryKey('authLdapLogin', options)
+
+/**
+ * Ldap Login
+ * LDAP-only authentication endpoint
+ */
+export const authLdapLoginOptions = (options: Options<AuthLdapLoginData>) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await authLdapLogin({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      })
+      return data
+    },
+    queryKey: authLdapLoginQueryKey(options),
+  })
+}
+
+/**
+ * Ldap Login
+ * LDAP-only authentication endpoint
+ */
+export const authLdapLoginMutation = (
+  options?: Partial<Options<AuthLdapLoginData>>,
+): UseMutationOptions<
+  AuthLdapLoginResponse,
+  AxiosError<AuthLdapLoginError>,
+  Options<AuthLdapLoginData>
+> => {
+  const mutationOptions: UseMutationOptions<
+    AuthLdapLoginResponse,
+    AxiosError<AuthLdapLoginError>,
+    Options<AuthLdapLoginData>
+  > = {
+    mutationFn: async (localOptions) => {
+      const { data } = await authLdapLogin({
+        ...options,
+        ...localOptions,
+        throwOnError: true,
+      })
+      return data
+    },
+  }
+  return mutationOptions
+}
+
+export const authLdapStatusQueryKey = (options?: Options<AuthLdapStatusData>) =>
+  createQueryKey('authLdapStatus', options)
+
+/**
+ * Ldap Status
+ * Check LDAP configuration status
+ */
+export const authLdapStatusOptions = (
+  options?: Options<AuthLdapStatusData>,
+) => {
+  return queryOptions({
+    queryFn: async ({ queryKey, signal }) => {
+      const { data } = await authLdapStatus({
+        ...options,
+        ...queryKey[0],
+        signal,
+        throwOnError: true,
+      })
+      return data
+    },
+    queryKey: authLdapStatusQueryKey(options),
+  })
 }
 
 export const authTestTokenQueryKey = (options?: Options<AuthTestTokenData>) =>

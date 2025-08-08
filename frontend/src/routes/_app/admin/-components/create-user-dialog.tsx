@@ -34,6 +34,7 @@ import { useHandleError } from '@/hooks/use-handle-error'
 
 const createUserSchema = z.object({
   email: z.email('Please enter a valid email address'),
+  username: z.string().min(1, 'Username is required').max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
   full_name: z.string().min(1, 'Full name is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   is_active: z.boolean(),
@@ -51,6 +52,7 @@ export function CreateUserDialog({ children }: { children?: React.ReactNode }) {
     resolver: zodResolver(createUserSchema),
     defaultValues: {
       email: '',
+      username: '',
       full_name: '',
       password: '',
       is_active: true,
@@ -72,6 +74,7 @@ export function CreateUserDialog({ children }: { children?: React.ReactNode }) {
   const onSubmit = (data: CreateUserFormValues) => {
     const userData: UserCreate = {
       email: data.email,
+      username: data.username || undefined,
       full_name: data.full_name,
       password: data.password,
       is_active: data.is_active,
@@ -109,6 +112,23 @@ export function CreateUserDialog({ children }: { children?: React.ReactNode }) {
                     <Input
                       placeholder="user@example.com"
                       type="email"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="username (optional, for LDAP users)"
+                      type="text"
                       {...field}
                     />
                   </FormControl>

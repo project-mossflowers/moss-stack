@@ -95,6 +95,22 @@ class Settings(BaseSettings):
     FIRST_SUPERUSER: EmailStr
     FIRST_SUPERUSER_PASSWORD: str
 
+    # LDAP Configuration
+    LDAP_ENABLED: bool = False
+    LDAP_SERVER: str | None = None
+    LDAP_PORT: int = 389
+    LDAP_USE_SSL: bool = False
+    LDAP_USE_TLS: bool = False
+    LDAP_BIND_DN: str | None = None
+    LDAP_BIND_PASSWORD: str | None = None
+    LDAP_SEARCH_BASE: str | None = None
+    LDAP_USER_FILTER: str = "(uid={username})"
+    LDAP_USER_OBJECT_CLASS: str = "inetOrgPerson"
+    LDAP_EMAIL_ATTRIBUTE: str = "mail"
+    LDAP_FIRST_NAME_ATTRIBUTE: str = "givenName"
+    LDAP_LAST_NAME_ATTRIBUTE: str = "sn"
+    LDAP_CONFLICT_STRATEGY: Literal["fail", "merge", "create_new"] = "fail"
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (

@@ -21,6 +21,23 @@ async def create_user(*, session: AsyncSession, user_create: UserCreate) -> User
     return db_obj
 
 
+async def create_user_with_hashed_password(
+    *, session: AsyncSession, user_create: UserCreate, hashed_password: str
+) -> User:
+    db_obj = User.model_validate(
+        user_create,
+        update={
+            "hashed_password": hashed_password,
+            "created_at": datetime.utcnow(),
+            "updated_at": datetime.utcnow(),
+        },
+    )
+    session.add(db_obj)
+    await session.commit()
+    await session.refresh(db_obj)
+    return db_obj
+
+
 async def update_user(
     *, session: AsyncSession, db_user: User, user_in: UserUpdate
 ) -> Any:
@@ -39,6 +56,13 @@ async def update_user(
 
 async def get_user_by_email(*, session: AsyncSession, email: str) -> User | None:
     statement = select(User).where(User.email == email)
+    result = await session.exec(statement)
+    session_user = result.first()
+    return session_user
+
+
+async def get_user_by_username(*, session: AsyncSession, username: str) -> User | None:
+    statement = select(User).where(User.username == username)
     result = await session.exec(statement)
     session_user = result.first()
     return session_user
