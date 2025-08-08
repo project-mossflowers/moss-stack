@@ -230,3 +230,55 @@ async def authenticate_hybrid(
     
     # Fall back to email lookup (for regular users with email)
     return await authenticate(session=session, email=username, password=password)
+
+
+async def create_or_update_oauth2_user(
+    *, 
+    session: AsyncSession, 
+    provider: str, 
+    provider_user_id: str, 
+    email: str, 
+    name: str = "", 
+    picture: str = ""
+) -> User:
+    """
+    Create or update user from OAuth2 provider
+    """
+    from src.routes.users.service import get_user_by_email
+    import uuid
+    
+    # Check if user exists by email
+    db_user = await get_user_by_email(session=session, email=email)
+    
+    if db_user:
+        # Update existing user
+        updated = False
+        if db_user.full_name != name:
+            db_user.full_name = name
+            updated = True
+        if not db_user.username:
+            db_user.username = f"{provider}_{provider_user_id}"
+            updated = True
+        
+        if updated:
+            session.add(db_user)
+            await session.commit()
+            await session.refresh(db_user)
+        
+        return db_user
+    else:
+        # Create new user
+        hashed_password = get_password_hash(f"oauth2_{uuid.uuid4()}")
+        new_user = User(
+            email=email,
+            username=f"{provider}_{provider_user_id}",
+            hashed_password=hashed_password,
+            full_name=name,
+            is_active=True,
+            is_superuser=False
+        )
+        session.add(new_user)
+        await session.commit()
+        await session.refresh(new_user)
+        
+        return new_user

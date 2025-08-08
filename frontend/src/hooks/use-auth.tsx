@@ -4,6 +4,7 @@ import {
   authLdapLoginMutation,
   authLdapStatusOptions,
   authLoginAccessTokenMutation,
+  oauth2GetOauth2StatusOptions,
   usersReadUserMeOptions,
   usersRegisterUserMutation,
 } from '@/api/@tanstack/react-query.gen'
@@ -24,6 +25,10 @@ const useAuth = () => {
 
   const { data: ldapStatus } = useQuery({
     ...authLdapStatusOptions(),
+  })
+
+  const { data: oauth2Status } = useQuery({
+    ...oauth2GetOauth2StatusOptions(),
   })
 
   const signupMutation = useMutation({
@@ -76,6 +81,7 @@ const useAuth = () => {
     ldapStatus,
     isLdapEnabled: ldapStatus?.ldap_enabled || false,
     isLdapConfigured: ldapStatus?.ldap_configured || false,
+    oauth2Status,
   }
 }
 

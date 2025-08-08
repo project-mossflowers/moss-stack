@@ -111,6 +111,26 @@ class Settings(BaseSettings):
     LDAP_LAST_NAME_ATTRIBUTE: str = "sn"
     LDAP_CONFLICT_STRATEGY: Literal["fail", "merge", "create_new"] = "fail"
 
+    # OAuth2 Configuration
+    GOOGLE_CLIENT_ID: str | None = None
+    GOOGLE_CLIENT_SECRET: str | None = None
+    GOOGLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/oauth2/google/callback"
+    
+    APPLE_CLIENT_ID: str | None = None
+    APPLE_CLIENT_SECRET: str | None = None
+    APPLE_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/oauth2/apple/callback"
+    
+    GITHUB_CLIENT_ID: str | None = None
+    GITHUB_CLIENT_SECRET: str | None = None
+    GITHUB_REDIRECT_URI: str = "http://localhost:8000/api/v1/auth/oauth2/github/callback"
+    
+    FRONTEND_URL: str = "http://localhost:3000"
+
+    # OAuth2 Provider Enable Flags
+    GOOGLE_OAUTH_ENABLED: bool = False
+    APPLE_OAUTH_ENABLED: bool = False
+    GITHUB_OAUTH_ENABLED: bool = False
+
     def _check_default_secret(self, var_name: str, value: str | None) -> None:
         if value == "changethis":
             message = (

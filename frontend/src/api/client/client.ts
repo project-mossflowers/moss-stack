@@ -13,7 +13,6 @@ import type { Client, Config } from './types'
 export const createClient = (config: Config = {}): Client => {
   let _config = mergeConfigs(createConfig(), config)
 
-   
   const { auth, ...configWithoutAuth } = _config
   const instance = axios.create(configWithoutAuth)
 
@@ -59,7 +58,7 @@ export const createClient = (config: Config = {}): Client => {
     try {
       // assign Axios here for consistency with fetch
       const _axios = opts.axios
-       
+
       const { auth, ...optsWithoutAuth } = opts
       const response = await _axios({
         ...optsWithoutAuth,

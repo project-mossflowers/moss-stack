@@ -1092,6 +1092,94 @@ export type ItemsUpdateItemResponses = {
 export type ItemsUpdateItemResponse =
   ItemsUpdateItemResponses[keyof ItemsUpdateItemResponses]
 
+export type Oauth2Oauth2LoginData = {
+  body?: never
+  path: {
+    /**
+     * Provider
+     */
+    provider: string
+  }
+  query?: never
+  url: '/api/v1/auth/oauth2/{provider}'
+}
+
+export type Oauth2Oauth2LoginErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type Oauth2Oauth2LoginError =
+  Oauth2Oauth2LoginErrors[keyof Oauth2Oauth2LoginErrors]
+
+export type Oauth2Oauth2LoginResponses = {
+  /**
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type Oauth2Oauth2CallbackData = {
+  body?: never
+  path: {
+    /**
+     * Provider
+     */
+    provider: string
+  }
+  query: {
+    /**
+     * Code
+     */
+    code: string
+    /**
+     * State
+     */
+    state: string
+  }
+  url: '/api/v1/auth/oauth2/{provider}/callback'
+}
+
+export type Oauth2Oauth2CallbackErrors = {
+  /**
+   * Validation Error
+   */
+  422: HttpValidationError
+}
+
+export type Oauth2Oauth2CallbackError =
+  Oauth2Oauth2CallbackErrors[keyof Oauth2Oauth2CallbackErrors]
+
+export type Oauth2Oauth2CallbackResponses = {
+  /**
+   * Response Oauth2-Oauth2 Callback
+   * Successful Response
+   */
+  200: unknown
+}
+
+export type Oauth2GetOauth2StatusData = {
+  body?: never
+  path?: never
+  query?: never
+  url: '/api/v1/auth/oauth2/status'
+}
+
+export type Oauth2GetOauth2StatusResponses = {
+  /**
+   * Response Oauth2-Get Oauth2 Status
+   * Successful Response
+   */
+  200: {
+    [key: string]: unknown
+  }
+}
+
+export type Oauth2GetOauth2StatusResponse =
+  Oauth2GetOauth2StatusResponses[keyof Oauth2GetOauth2StatusResponses]
+
 export type PrivateCreateUserData = {
   body: PrivateUserCreate
   path?: never

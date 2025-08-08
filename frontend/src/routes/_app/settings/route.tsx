@@ -37,7 +37,11 @@ export const Route = createFileRoute('/_app/settings')({
 const profileFormSchema = z.object({
   full_name: z.string().min(1, 'Name is required'),
   email: z.email('Invalid email address'),
-  username: z.string().max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
+  username: z
+    .string()
+    .max(255, 'Username must be less than 255 characters')
+    .optional()
+    .or(z.literal('')),
 })
 
 const passwordFormSchema = z.object({

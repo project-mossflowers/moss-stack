@@ -37,7 +37,11 @@ const editUserSchema = z.object({
     .email('Please enter a valid email address')
     .optional()
     .or(z.literal('')),
-  username: z.string().max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
+  username: z
+    .string()
+    .max(255, 'Username must be less than 255 characters')
+    .optional()
+    .or(z.literal('')),
   full_name: z.string().optional(),
   password: z
     .string()

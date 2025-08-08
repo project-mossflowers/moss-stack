@@ -13,7 +13,7 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { AppleIcon, GoogleIcon } from '@/components/ui/icons'
+import { AppleIcon, GitHubIcon, GoogleIcon } from '@/components/ui/icons'
 import useAuth from '@/hooks/use-auth'
 import {
   Form,
@@ -26,10 +26,22 @@ import {
 import { loginSchema } from '@/routes/_auth/-schemas'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 
+interface OAuth2ProviderStatus {
+  enabled: boolean
+  configured: boolean
+}
+
+interface OAuth2Status {
+  google: OAuth2ProviderStatus
+  apple: OAuth2ProviderStatus
+  github: OAuth2ProviderStatus
+}
+
 export interface LoginFormProps extends React.ComponentPropsWithoutRef<'div'> {}
 
 export function LoginForm({ className, ...props }: LoginFormProps) {
-  const { loginMutation, ldapLoginMutation, isLdapEnabled } = useAuth()
+  const { loginMutation, ldapLoginMutation, isLdapEnabled, oauth2Status } =
+    useAuth()
   const [loginType, setLoginType] = useState<'local' | 'ldap'>('local')
 
   const form = useForm<LoginFormData>({
@@ -54,7 +66,21 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
     }
   }
 
+  const handleOAuth2Login = (provider: 'google' | 'apple' | 'github') => {
+    const oauth2Url = `${import.meta.env.VITE_API_URL}/api/v1/auth/oauth2/${provider}`
+    window.location.href = oauth2Url
+  }
+
   const isLoading = loginMutation.isPending || ldapLoginMutation.isPending
+
+  // Check if any OAuth2 providers are enabled and configured
+  const oauth2StatusTyped = oauth2Status as undefined | OAuth2Status
+  const hasEnabledOAuth2 =
+    oauth2StatusTyped &&
+    ((oauth2StatusTyped.google.enabled &&
+      oauth2StatusTyped.google.configured) ||
+      (oauth2StatusTyped.apple.enabled && oauth2StatusTyped.apple.configured) ||
+      (oauth2StatusTyped.github.enabled && oauth2StatusTyped.github.configured))
 
   return (
     <div className={cn('flex flex-col gap-6', className)} {...props}>
@@ -62,40 +88,65 @@ export function LoginForm({ className, ...props }: LoginFormProps) {
         <CardHeader className="text-center">
           <CardTitle className="text-xl">Welcome back</CardTitle>
           <CardDescription>
-            {isLdapEnabled
+            {hasEnabledOAuth2 || isLdapEnabled
               ? 'Choose your login method'
-              : 'Login with your Apple or Google account'}
+              : 'Login with your email and password'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(handleSubmit)}>
               <div className="grid gap-6">
-                <div className="flex flex-col gap-4">
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isLoading}
-                  >
-                    <AppleIcon />
-                    Login with Apple
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isLoading}
-                  >
-                    <GoogleIcon />
-                    Login with Google
-                  </Button>
-                </div>
-                <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
-                  <span className="relative z-10 bg-background px-2 text-muted-foreground">
-                    Or continue with
-                  </span>
-                </div>
+                {hasEnabledOAuth2 && (
+                  <>
+                    <div className="flex flex-col gap-4">
+                      {oauth2StatusTyped.google.enabled &&
+                        oauth2StatusTyped.google.configured && (
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            type="button"
+                            disabled={isLoading}
+                            onClick={() => handleOAuth2Login('google')}
+                          >
+                            <GoogleIcon />
+                            Login with Google
+                          </Button>
+                        )}
+                      {oauth2StatusTyped.apple.enabled &&
+                        oauth2StatusTyped.apple.configured && (
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            type="button"
+                            disabled={isLoading}
+                            onClick={() => handleOAuth2Login('apple')}
+                          >
+                            <AppleIcon />
+                            Login with Apple
+                          </Button>
+                        )}
+                      {oauth2StatusTyped.github.enabled &&
+                        oauth2StatusTyped.github.configured && (
+                          <Button
+                            variant="outline"
+                            className="w-full"
+                            type="button"
+                            disabled={isLoading}
+                            onClick={() => handleOAuth2Login('github')}
+                          >
+                            <GitHubIcon />
+                            Login with GitHub
+                          </Button>
+                        )}
+                    </div>
+                    <div className="relative text-center text-sm after:absolute after:inset-0 after:top-1/2 after:z-0 after:flex after:items-center after:border-t after:border-border">
+                      <span className="relative z-10 bg-background px-2 text-muted-foreground">
+                        Or continue with
+                      </span>
+                    </div>
+                  </>
+                )}
 
                 {isLdapEnabled ? (
                   <Tabs

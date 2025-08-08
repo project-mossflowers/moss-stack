@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as AuthRouteRouteImport } from './routes/_auth/route'
 import { Route as AppRouteRouteImport } from './routes/_app/route'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as Oauth2CallbackRouteImport } from './routes/oauth2/callback'
 import { Route as AuthSignupRouteRouteImport } from './routes/_auth/signup/route'
 import { Route as AuthLoginRouteRouteImport } from './routes/_auth/login/route'
 import { Route as AppSettingsRouteRouteImport } from './routes/_app/settings/route'
@@ -32,6 +33,11 @@ const AppIndexRoute = AppIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AppRouteRoute,
+} as any)
+const Oauth2CallbackRoute = Oauth2CallbackRouteImport.update({
+  id: '/oauth2/callback',
+  path: '/oauth2/callback',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AuthSignupRouteRoute = AuthSignupRouteRouteImport.update({
   id: '/signup',
@@ -75,6 +81,7 @@ export interface FileRoutesByFullPath {
   '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
+  '/oauth2/callback': typeof Oauth2CallbackRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
   '/dashboard': typeof AppDashboardIndexRoute
@@ -85,6 +92,7 @@ export interface FileRoutesByTo {
   '/settings': typeof AppSettingsRouteRoute
   '/login': typeof AuthLoginRouteRoute
   '/signup': typeof AuthSignupRouteRoute
+  '/oauth2/callback': typeof Oauth2CallbackRoute
   '/': typeof AppIndexRoute
   '/items/$itemId': typeof AppItemsItemIdRouteRoute
   '/dashboard': typeof AppDashboardIndexRoute
@@ -98,6 +106,7 @@ export interface FileRoutesById {
   '/_app/settings': typeof AppSettingsRouteRoute
   '/_auth/login': typeof AuthLoginRouteRoute
   '/_auth/signup': typeof AuthSignupRouteRoute
+  '/oauth2/callback': typeof Oauth2CallbackRoute
   '/_app/': typeof AppIndexRoute
   '/_app/items_/$itemId': typeof AppItemsItemIdRouteRoute
   '/_app/dashboard/': typeof AppDashboardIndexRoute
@@ -110,6 +119,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/login'
     | '/signup'
+    | '/oauth2/callback'
     | '/'
     | '/items/$itemId'
     | '/dashboard'
@@ -120,6 +130,7 @@ export interface FileRouteTypes {
     | '/settings'
     | '/login'
     | '/signup'
+    | '/oauth2/callback'
     | '/'
     | '/items/$itemId'
     | '/dashboard'
@@ -132,6 +143,7 @@ export interface FileRouteTypes {
     | '/_app/settings'
     | '/_auth/login'
     | '/_auth/signup'
+    | '/oauth2/callback'
     | '/_app/'
     | '/_app/items_/$itemId'
     | '/_app/dashboard/'
@@ -140,6 +152,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AppRouteRoute: typeof AppRouteRouteWithChildren
   AuthRouteRoute: typeof AuthRouteRouteWithChildren
+  Oauth2CallbackRoute: typeof Oauth2CallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -164,6 +177,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRouteRoute
+    }
+    '/oauth2/callback': {
+      id: '/oauth2/callback'
+      path: '/oauth2/callback'
+      fullPath: '/oauth2/callback'
+      preLoaderRoute: typeof Oauth2CallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_auth/signup': {
       id: '/_auth/signup'
@@ -256,6 +276,7 @@ const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   AppRouteRoute: AppRouteRouteWithChildren,
   AuthRouteRoute: AuthRouteRouteWithChildren,
+  Oauth2CallbackRoute: Oauth2CallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

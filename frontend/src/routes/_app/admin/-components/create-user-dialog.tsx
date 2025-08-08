@@ -34,7 +34,12 @@ import { useHandleError } from '@/hooks/use-handle-error'
 
 const createUserSchema = z.object({
   email: z.email('Please enter a valid email address'),
-  username: z.string().min(1, 'Username is required').max(255, 'Username must be less than 255 characters').optional().or(z.literal('')),
+  username: z
+    .string()
+    .min(1, 'Username is required')
+    .max(255, 'Username must be less than 255 characters')
+    .optional()
+    .or(z.literal('')),
   full_name: z.string().min(1, 'Full name is required'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
   is_active: z.boolean(),
